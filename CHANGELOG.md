@@ -1,5 +1,8 @@
 <h2 class="github">Changelog</h2>
 
+### v0.9.2
+- Update kensa-core to 0.8.3.
+
 ### v0.9.1
 
 **Site-mode ergonomics.** Four changes that make `gradle test` / `mvn verify` produce an up-to-date aggregated report without re-running tests, and move per-source titles off system properties.
