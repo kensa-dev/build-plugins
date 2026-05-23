@@ -42,6 +42,14 @@ abstract class AssembleKensaSiteTask : DefaultTask() {
     abstract val sourceTitles: MapProperty<String, String>
 
     /**
+     * Aggregator mode only: contributor project path → `kensa.kensaCoreVersion`. Used at execution
+     * to fail-fast on a contributor whose kensa-core version doesn't match the aggregator's. Empty
+     * for standalone/per-project mode.
+     */
+    @get:Input
+    abstract val contributorVersions: MapProperty<String, String>
+
+    /**
      * Per-source `configuration.json` files. Their content (titleText) feeds the manifest, and their presence
      * determines which sources are included. Tracked so a Test task that updates titleText invalidates the cache.
      */
@@ -73,6 +81,16 @@ abstract class AssembleKensaSiteTask : DefaultTask() {
     fun assemble() {
         val root = siteRoot.get().asFile.toPath()
         Files.createDirectories(root)
+
+        val aggregatorVersion = kensaVersion.get()
+        val mismatches = contributorVersions.get().filterValues { it != aggregatorVersion }
+        if (mismatches.isNotEmpty()) {
+            val detail = mismatches.entries.joinToString { (path, v) -> "$path reports $v" }
+            throw GradleException(
+                "Kensa site: kensa-core version mismatch. Aggregator: $aggregatorVersion. $detail. " +
+                    "Align kensa.kensaCoreVersion across modules, or override kensa.kensaCoreVersion on the root."
+            )
+        }
 
         val gradleLogger = object : SiteAssemblerLogger {
             override fun lifecycle(message: String) = logger.lifecycle(message)

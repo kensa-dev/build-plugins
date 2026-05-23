@@ -1,8 +1,13 @@
 package dev.kensa.gradle
 
+import dev.kensa.gradle.site.KensaSiteService
+import dev.kensa.gradle.site.NamespacedId
+import dev.kensa.gradle.site.ProjectIntent
+import dev.kensa.gradle.site.Role
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.testing.Test
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
@@ -31,85 +36,226 @@ class KensaGradlePlugin : KotlinCompilerPluginSupportPlugin {
 
         target.extensions.create("kensa", KensaExtension::class.java)
 
+        val siteService: Provider<KensaSiteService> = target.gradle.sharedServices.registerIfAbsent(
+            "kensa-site-service",
+            KensaSiteService::class.java,
+        ) {}
+
         target.afterEvaluate { project ->
-            val extension = project.extensions.getByType(KensaExtension::class.java)
+            val extension = project.kensaExtension
             checkKensaCoreCompat(extension.kensaCoreVersion.get())
-            if (!extension.enabled.get() || !extension.site.get()) return@afterEvaluate
+            if (!extension.enabled.get()) return@afterEvaluate
 
-            val expectedSourceIds = extension.sourceSets.get().toMutableSet()
-            val seenIds = mutableSetOf<String>()
-            val configuredTestTasks = mutableListOf<org.gradle.api.tasks.testing.Test>()
-
-            for (sourceSetName in extension.sourceSets.get()) {
-                val testTask = project.tasks.findByName(sourceSetName)
-                if (testTask == null || testTask !is org.gradle.api.tasks.testing.Test) continue
-
-                val existingId = testTask.systemProperties["kensa.source.id"] as? String
-                val resolvedId = existingId ?: sourceSetName
-                if (!seenIds.add(resolvedId)) {
-                    throw org.gradle.api.GradleException(
-                        "Kensa site mode: source id collision on '$resolvedId' (multiple sourcesets / test tasks resolve to the same kensa.source.id). Override one explicitly: tasks.named<Test>(\"<name>\") { systemProperty(\"kensa.source.id\", \"<unique>\") }"
-                    )
-                }
-                if (existingId != null && existingId != sourceSetName) {
-                    expectedSourceIds.remove(sourceSetName)
-                    expectedSourceIds.add(existingId)
-                }
-
-                val argsProvider = project.objects.newInstance(KensaSourceArgsProvider::class.java).apply {
-                    siteRoot.set(extension.siteRoot)
-                    sourceBundleDir.set(extension.siteRoot.dir("sources/$resolvedId"))
-                    sourceId.set(resolvedId)
-                    emitSourceIdArg.set(existingId == null)
-                }
-                testTask.jvmArgumentProviders.add(argsProvider)
-                configuredTestTasks.add(testTask)
-            }
-
-            // Resolved at task-execution time, NOT at plugin-build time. The shell resources (kensa.js,
-            // logo.svg) ride along with kensa-core, so updating the kensa UI just requires republishing
-            // kensa-core; this configuration re-resolves and the task's @Classpath input picks up the
-            // new jar's content fingerprint.
-            val shellConfig = project.configurations.maybeCreate("kensaShellResources").apply {
-                isCanBeConsumed = false
-                isCanBeResolved = true
-                isTransitive = false
-                description = "Source jars for the Kensa multi-source site shell (kensa.js, logo.svg)."
-            }
-            val resolvedKensaCoreVersion = extension.kensaCoreVersion.get()
-            project.dependencies.add(shellConfig.name, "dev.kensa:kensa-core:$resolvedKensaCoreVersion")
-
-            val assembleTaskProvider = project.tasks.register(
-                "assembleKensaSite",
-                AssembleKensaSiteTask::class.java,
-            ) { task ->
-                task.group = "verification"
-                task.description = "Assembles the Kensa multi-source site (shell + manifest) from per-sourceset bundles."
-                task.siteRoot.set(extension.siteRoot)
-                task.expectedSourceIds.set(expectedSourceIds)
-                task.kensaVersion.set(resolvedKensaCoreVersion)
-                task.sourceTitles.set(extension.sourceTitles)
-                task.shellSource.from(shellConfig)
-                task.sourceConfigurations.from(
-                    project.fileTree(extension.siteRoot) {
-                        it.include("sources/*/configuration.json")
+            val isRoot = project == project.rootProject
+            if (!isRoot) {
+                for (key in extension.sourceTitles.get().keys) {
+                    if (key.contains(NamespacedId.SEPARATOR)) {
+                        throw GradleException(
+                            "Kensa: source title key '$key' on ${project.path} contains the reserved separator '${NamespacedId.SEPARATOR}'. " +
+                                "Use a different source-set name, or set the title on the root via kensa.sourceTitles[\"<slug>${NamespacedId.SEPARATOR}<sourceSet>\"]."
+                        )
                     }
-                )
-                task.manifestJsonFile.set(extension.siteRoot.file("manifest.json"))
-                task.indexHtmlFile.set(extension.siteRoot.file("index.html"))
-                task.kensaJsFile.set(extension.siteRoot.file("kensa.js"))
-                task.logoSvgFile.set(extension.siteRoot.file("logo.svg"))
-                // mustRunAfter (not dependsOn): standalone `gradle assembleKensaSite` aggregates from
-                // disk without forcing Test tasks to re-run. Order is still enforced if both are invoked.
-                task.mustRunAfter(configuredTestTasks)
+                }
             }
 
-            // Auto-wire: `gradle test` (or any configured Test task) triggers the assemble as a
-            // finalizer, so users don't have to remember `gradle test assembleKensaSite`. Finalizer
-            // runs once after all configured Test tasks complete, regardless of pass/fail.
-            for (testTask in configuredTestTasks) {
-                testTask.finalizedBy(assembleTaskProvider)
+            siteService.get().bufferIntent(
+                ProjectIntent(
+                    projectPath = project.path,
+                    isRoot = isRoot,
+                    rootProjectName = project.rootProject.name,
+                    siteEnabled = extension.site.get(),
+                    sourceSets = extension.sourceSets.get(),
+                    sourceTitles = extension.sourceTitles.get(),
+                    kensaCoreVersion = extension.kensaCoreVersion.get(),
+                    siteRoot = extension.siteRoot.get().asFile,
+                )
+            )
+        }
+
+        target.gradle.projectsEvaluated {
+            val svc = siteService.get()
+            svc.materializeRoles()
+            when (svc.roleFor(target.path)) {
+                Role.Aggregator -> setUpAggregator(target, svc, siteService)
+                Role.Contributor -> setUpContributor(target, svc)
+                Role.Standalone -> setUpStandalone(target)
+                Role.None -> {}
             }
+        }
+    }
+
+    private fun setUpStandalone(project: Project) {
+        val extension = project.kensaExtension
+        if (!extension.site.get()) return
+
+        val expectedSourceIds = extension.sourceSets.get().toMutableSet()
+        val seenIds = mutableSetOf<String>()
+        val configuredTestTasks = mutableListOf<Test>()
+
+        for (sourceSetName in extension.sourceSets.get()) {
+            val testTask = project.tasks.findByName(sourceSetName)
+            if (testTask == null || testTask !is Test) continue
+
+            val existingId = testTask.systemProperties["kensa.source.id"] as? String
+            val resolvedId = existingId ?: sourceSetName
+            if (!seenIds.add(resolvedId)) {
+                throw GradleException(
+                    "Kensa site mode: source id collision on '$resolvedId' (multiple sourcesets / test tasks resolve to the same kensa.source.id). Override one explicitly: tasks.named<Test>(\"<name>\") { systemProperty(\"kensa.source.id\", \"<unique>\") }"
+                )
+            }
+            if (existingId != null && existingId != sourceSetName) {
+                expectedSourceIds.remove(sourceSetName)
+                expectedSourceIds.add(existingId)
+            }
+
+            val argsProvider = project.objects.newInstance(KensaSourceArgsProvider::class.java).apply {
+                siteRoot.set(extension.siteRoot)
+                sourceBundleDir.set(extension.siteRoot.dir("sources/$resolvedId"))
+                sourceId.set(resolvedId)
+                emitSourceIdArg.set(existingId == null)
+            }
+            testTask.jvmArgumentProviders.add(argsProvider)
+            configuredTestTasks.add(testTask)
+        }
+
+        val shellConfig = project.configurations.maybeCreate("kensaShellResources").apply {
+            isCanBeConsumed = false
+            isCanBeResolved = true
+            isTransitive = false
+            description = "Source jars for the Kensa multi-source site shell (kensa.js, logo.svg)."
+        }
+        val resolvedKensaCoreVersion = extension.kensaCoreVersion.get()
+        project.dependencies.add(shellConfig.name, "dev.kensa:kensa-core:$resolvedKensaCoreVersion")
+
+        val assembleTaskProvider = project.tasks.register(
+            "assembleKensaSite",
+            AssembleKensaSiteTask::class.java,
+        ) { task ->
+            task.group = "verification"
+            task.description = "Assembles the Kensa multi-source site (shell + manifest) from per-sourceset bundles."
+            task.siteRoot.set(extension.siteRoot)
+            task.expectedSourceIds.set(expectedSourceIds)
+            task.kensaVersion.set(resolvedKensaCoreVersion)
+            task.sourceTitles.set(extension.sourceTitles)
+            task.contributorVersions.set(emptyMap())
+            task.shellSource.from(shellConfig)
+            task.sourceConfigurations.from(
+                project.fileTree(extension.siteRoot) {
+                    it.include("sources/*/configuration.json")
+                }
+            )
+            task.manifestJsonFile.set(extension.siteRoot.file("manifest.json"))
+            task.indexHtmlFile.set(extension.siteRoot.file("index.html"))
+            task.kensaJsFile.set(extension.siteRoot.file("kensa.js"))
+            task.logoSvgFile.set(extension.siteRoot.file("logo.svg"))
+            task.mustRunAfter(configuredTestTasks)
+        }
+
+        for (testTask in configuredTestTasks) {
+            testTask.finalizedBy(assembleTaskProvider)
+        }
+    }
+
+    private fun setUpContributor(project: Project, svc: KensaSiteService) {
+        val agg = svc.aggregatorIntent() ?: return
+        val extension = project.kensaExtension
+        val slug = NamespacedId.slug(project.path, rootProjectName = agg.rootProjectName)
+        val rootAssembleTaskPath = "${agg.projectPath.trimEnd(':')}:assembleKensaSite"
+
+        for (sourceSetName in extension.sourceSets.get()) {
+            val testTask = project.tasks.findByName(sourceSetName)
+            if (testTask == null || testTask !is Test) continue
+
+            val namespacedId = NamespacedId.format(slug, sourceSetName)
+            val argsProvider = project.objects.newInstance(KensaSourceArgsProvider::class.java).apply {
+                siteRoot.set(agg.siteRoot)
+                sourceBundleDir.set(agg.siteRoot.resolve("sources").resolve(namespacedId))
+                sourceId.set(namespacedId)
+                emitSourceIdArg.set(true)
+            }
+            testTask.jvmArgumentProviders.add(argsProvider)
+            testTask.finalizedBy(rootAssembleTaskPath)
+        }
+
+        project.logger.lifecycle(
+            "Kensa: ${project.path} contributing to root :assembleKensaSite (siteRoot=${agg.siteRoot.absolutePath})"
+        )
+    }
+
+    private fun setUpAggregator(
+        project: Project,
+        svc: KensaSiteService,
+        siteService: Provider<KensaSiteService>,
+    ) {
+        val agg = svc.aggregatorIntent() ?: return
+        val extension = project.kensaExtension
+        val rootSlug = NamespacedId.slug(agg.projectPath, rootProjectName = agg.rootProjectName)
+
+        val configuredOwnTestTasks = mutableListOf<Test>()
+        for (sourceSetName in agg.sourceSets) {
+            val testTask = project.tasks.findByName(sourceSetName)
+            if (testTask == null || testTask !is Test) continue
+
+            val namespacedId = NamespacedId.format(rootSlug, sourceSetName)
+            val argsProvider = project.objects.newInstance(KensaSourceArgsProvider::class.java).apply {
+                siteRoot.set(extension.siteRoot)
+                sourceBundleDir.set(extension.siteRoot.dir("sources/$namespacedId"))
+                sourceId.set(namespacedId)
+                emitSourceIdArg.set(true)
+            }
+            testTask.jvmArgumentProviders.add(argsProvider)
+            configuredOwnTestTasks.add(testTask)
+        }
+
+        val shellConfig = project.configurations.maybeCreate("kensaShellResources").apply {
+            isCanBeConsumed = false
+            isCanBeResolved = true
+            isTransitive = false
+            description = "Source jars for the Kensa multi-source site shell (kensa.js, logo.svg)."
+        }
+        project.dependencies.add(shellConfig.name, "dev.kensa:kensa-core:${agg.kensaCoreVersion}")
+
+        val registrations = svc.registrations()
+        val expectedIds = registrations.map { it.namespacedId }.toSet()
+        val aggregatorTitleMap = extension.sourceTitles.get()
+        val effectiveTitles = buildMap {
+            for (reg in registrations) {
+                val title = aggregatorTitleMap[reg.namespacedId] ?: reg.localTitle
+                if (title != null) put(reg.namespacedId, title)
+            }
+        }
+        val contributorVersions = registrations
+            .filter { it.projectPath != agg.projectPath }
+            .associate { it.projectPath to it.kensaCoreVersion }
+
+        val assembleTaskProvider = project.tasks.register(
+            "assembleKensaSite",
+            AssembleKensaSiteTask::class.java,
+        ) { task ->
+            task.group = "verification"
+            task.description = "Assembles the aggregated Kensa multi-source site from per-module bundles."
+            task.siteRoot.set(extension.siteRoot)
+            task.expectedSourceIds.set(expectedIds)
+            task.kensaVersion.set(agg.kensaCoreVersion)
+            task.sourceTitles.set(effectiveTitles)
+            task.contributorVersions.set(contributorVersions)
+            task.shellSource.from(shellConfig)
+            task.sourceConfigurations.from(
+                project.fileTree(extension.siteRoot) {
+                    it.include("sources/*/configuration.json")
+                }
+            )
+            task.manifestJsonFile.set(extension.siteRoot.file("manifest.json"))
+            task.indexHtmlFile.set(extension.siteRoot.file("index.html"))
+            task.kensaJsFile.set(extension.siteRoot.file("kensa.js"))
+            task.logoSvgFile.set(extension.siteRoot.file("logo.svg"))
+            task.mustRunAfter(configuredOwnTestTasks)
+            // Service contents are part of the task's input universe via configured state.
+            task.usesService(siteService)
+        }
+
+        for (testTask in configuredOwnTestTasks) {
+            testTask.finalizedBy(assembleTaskProvider)
         }
     }
 

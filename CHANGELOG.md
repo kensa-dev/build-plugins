@@ -1,5 +1,9 @@
 <h2 class="github">Changelog</h2>
 
+### v0.9.3
+
+**Multi-submodule site aggregation (Gradle).** Apply `dev.kensa.gradle-plugin` with `kensa { site = true }` to the rootProject of a multi-project build and any subprojects that also apply the plugin auto-register their source sets. A single `:assembleKensaSite` at the root produces an aggregated manifest at `<rootDir>/build/kensa-site/` with namespaced ids (`web__test`, `libs-billing__uiTest`). Title overrides via `kensa.sourceTitles["<slug>__<sourceSet>"]` on the root; contributor-local titles via `kensa.sourceTitles["<sourceSet>"]`. kensa-core version mismatch across modules fails fast. Single-project and standalone subproject behavior is unchanged.
+
 ### v0.9.2
 - Update kensa-core to 0.8.3.
 
