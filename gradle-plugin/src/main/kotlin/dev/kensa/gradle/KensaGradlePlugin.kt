@@ -6,7 +6,9 @@ import dev.kensa.gradle.site.ProjectIntent
 import dev.kensa.gradle.site.Role
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.testing.Test
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
@@ -58,6 +60,8 @@ class KensaGradlePlugin : KotlinCompilerPluginSupportPlugin {
                 }
             }
 
+            wireKensaCoreOnOutputOnlySourceSets(project, extension)
+
             siteService.get().bufferIntent(
                 ProjectIntent(
                     projectPath = project.path,
@@ -65,6 +69,7 @@ class KensaGradlePlugin : KotlinCompilerPluginSupportPlugin {
                     rootProjectName = project.rootProject.name,
                     siteEnabled = extension.site.get(),
                     sourceSets = extension.sourceSets.get(),
+                    outputSourceSets = extension.outputSourceSets.get(),
                     sourceTitles = extension.sourceTitles.get(),
                     kensaCoreVersion = extension.kensaCoreVersion.get(),
                     siteRoot = extension.siteRoot.get().asFile,
@@ -84,15 +89,32 @@ class KensaGradlePlugin : KotlinCompilerPluginSupportPlugin {
         }
     }
 
+    private fun wireKensaCoreOnOutputOnlySourceSets(project: Project, extension: KensaExtension) {
+        val outputOnly = extension.outputSourceSets.get() - extension.sourceSets.get()
+        if (outputOnly.isEmpty()) return
+        val sourceSetsContainer = project.extensions.findByType(SourceSetContainer::class.java) ?: return
+        val kensaVer = extension.kensaCoreVersion.get()
+        for (ssName in outputOnly) {
+            val ss = sourceSetsContainer.findByName(ssName) ?: continue
+            val dep = project.dependencies.create("dev.kensa:kensa-core:$kensaVer") as ModuleDependency
+            dep.capabilities { caps ->
+                caps.requireCapability("dev.kensa:core-hooks")
+            }
+            project.configurations.named(ss.implementationConfigurationName) { config ->
+                config.dependencies.add(dep)
+            }
+        }
+    }
+
     private fun setUpStandalone(project: Project) {
         val extension = project.kensaExtension
         if (!extension.site.get()) return
 
-        val expectedSourceIds = extension.sourceSets.get().toMutableSet()
+        val expectedSourceIds = extension.outputSourceSets.get().toMutableSet()
         val seenIds = mutableSetOf<String>()
         val configuredTestTasks = mutableListOf<Test>()
 
-        for (sourceSetName in extension.sourceSets.get()) {
+        for (sourceSetName in extension.outputSourceSets.get()) {
             val testTask = project.tasks.findByName(sourceSetName)
             if (testTask == null || testTask !is Test) continue
 
@@ -162,7 +184,7 @@ class KensaGradlePlugin : KotlinCompilerPluginSupportPlugin {
         val slug = NamespacedId.slug(project.path, rootProjectName = agg.rootProjectName)
         val rootAssembleTaskPath = "${agg.projectPath.trimEnd(':')}:assembleKensaSite"
 
-        for (sourceSetName in extension.sourceSets.get()) {
+        for (sourceSetName in extension.outputSourceSets.get()) {
             val testTask = project.tasks.findByName(sourceSetName)
             if (testTask == null || testTask !is Test) continue
 
@@ -192,7 +214,7 @@ class KensaGradlePlugin : KotlinCompilerPluginSupportPlugin {
         val rootSlug = NamespacedId.slug(agg.projectPath, rootProjectName = agg.rootProjectName)
 
         val configuredOwnTestTasks = mutableListOf<Test>()
-        for (sourceSetName in agg.sourceSets) {
+        for (sourceSetName in agg.outputSourceSets) {
             val testTask = project.tasks.findByName(sourceSetName)
             if (testTask == null || testTask !is Test) continue
 

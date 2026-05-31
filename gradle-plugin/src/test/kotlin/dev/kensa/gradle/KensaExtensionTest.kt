@@ -27,4 +27,13 @@ class KensaExtensionTest {
         ext.enabled.get() shouldBe true
         ext.sourceSets.get() shouldBe setOf("test")
     }
+
+    @Test
+    fun `outputSourceSets defaults to test and is independent of sourceSets`() {
+        val project = ProjectBuilder.builder().build()
+        val ext = project.extensions.create("kensa", KensaExtension::class.java)
+        ext.outputSourceSets.get() shouldBe setOf("test")
+        ext.sourceSets.set(setOf("main"))
+        ext.outputSourceSets.get() shouldBe setOf("test")
+    }
 }

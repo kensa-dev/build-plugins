@@ -14,6 +14,7 @@ data class ProjectIntent(
     val rootProjectName: String,
     val siteEnabled: Boolean,
     val sourceSets: Set<String>,
+    val outputSourceSets: Set<String>,
     val sourceTitles: Map<String, String>,
     val kensaCoreVersion: String,
     val siteRoot: File,

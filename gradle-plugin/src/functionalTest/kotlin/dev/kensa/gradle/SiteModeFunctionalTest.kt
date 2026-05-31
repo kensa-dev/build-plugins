@@ -90,7 +90,7 @@ class SiteModeFunctionalTest {
 
             kensa {
                 site = true
-                sourceSets = setOf("uiTest", "test")
+                outputSourceSets = setOf("uiTest", "test")
             }
 
             tasks.register<Test>("uiTest") {
@@ -302,7 +302,7 @@ class SiteModeFunctionalTest {
 
             kensa {
                 site = true
-                sourceSets = setOf("uiTest", "test")
+                outputSourceSets = setOf("uiTest", "test")
                 $overrideBlock
                 $sourceTitlesBlock
             }

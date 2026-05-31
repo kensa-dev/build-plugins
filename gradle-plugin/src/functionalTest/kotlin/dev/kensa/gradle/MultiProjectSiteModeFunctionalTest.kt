@@ -265,7 +265,7 @@ class MultiProjectSiteModeFunctionalTest {
             "sourceTitles[\"$k\"] = \"$v\""
         }
         val rootSourceSetsBlock = if (rootSourceSets.isEmpty()) "" else
-            "sourceSets = setOf(${rootSourceSets.joinToString { "\"$it\"" }})"
+            "outputSourceSets = setOf(${rootSourceSets.joinToString { "\"$it\"" }})"
         // Root applies the plugin (acts as Aggregator) and registers shared repos for all
         // projects so the test-repo resolves consistently in subprojects too.
         projectDir.resolve("build.gradle.kts").toFile().writeText(
@@ -309,7 +309,7 @@ class MultiProjectSiteModeFunctionalTest {
 
                 kensa {
                     site = ${sub.site}
-                    sourceSets = setOf(${sub.sourceSets.joinToString { "\"$it\"" }})
+                    outputSourceSets = setOf(${sub.sourceSets.joinToString { "\"$it\"" }})
                     $overrideBlock
                     $titlesBlock
                 }

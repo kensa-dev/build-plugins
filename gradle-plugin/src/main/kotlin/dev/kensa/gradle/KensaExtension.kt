@@ -10,7 +10,29 @@ import javax.inject.Inject
 abstract class KensaExtension @Inject constructor(layout: ProjectLayout) {
     abstract val enabled: Property<Boolean>
     abstract val debug: Property<Boolean>
+
+    /**
+     * Source sets the Kensa Kotlin compiler plugin instruments. Set to `emptySet()` if no source
+     * code in this project uses the expandable-sentence / rendered-value features that the
+     * compiler plugin powers. Set to `setOf("main")` if only the production source has such
+     * support code. Defaults to `setOf("test")`.
+     *
+     * Independent of [outputSourceSets] — instrumenting a source set does not by itself mean
+     * a Test task should emit Kensa output for it.
+     */
     abstract val sourceSets: SetProperty<String>
+
+    /**
+     * Source sets whose Test tasks emit Kensa output: the on-disk reports under
+     * `build/kensa` (HTML, JSON indices) and the `Kensa Output : …` banner. In site mode,
+     * these are also the source sets whose Test tasks contribute per-source bundles to the
+     * assembled site. Defaults to `setOf("test")`.
+     *
+     * Independent of [sourceSets]. A source set listed here gets `dev.kensa:kensa-core` on its
+     * runtime classpath even if the Kotlin compiler plugin is not applied to it.
+     */
+    abstract val outputSourceSets: SetProperty<String>
+
     abstract val site: Property<Boolean>
     abstract val siteRoot: DirectoryProperty
 
@@ -41,6 +63,7 @@ abstract class KensaExtension @Inject constructor(layout: ProjectLayout) {
         enabled.convention(true)
         debug.convention(false)
         sourceSets.convention(setOf("test"))
+        outputSourceSets.convention(setOf("test"))
         site.convention(false)
         siteRoot.convention(layout.buildDirectory.dir("kensa-site"))
         kensaCoreVersion.convention(KENSA_CORE_VERSION)

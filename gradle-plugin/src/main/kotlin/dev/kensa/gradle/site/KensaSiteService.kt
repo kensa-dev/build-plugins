@@ -68,13 +68,15 @@ abstract class KensaSiteService : BuildService<BuildServiceParameters.None> {
 
     /**
      * Returns the namespaced source registrations across all contributors plus the aggregator's
-     * own source-sets (if any). The aggregator's own source-sets are namespaced using its root
-     * project name, mirroring what a contributor would do for `:`.
+     * own output source sets (if any). The aggregator's own source sets are namespaced using its
+     * root project name, mirroring what a contributor would do for `:`. Iterates each intent's
+     * [ProjectIntent.outputSourceSets] — only source sets that actually emit Kensa output are
+     * registered into the site manifest.
      */
     fun registrations(): List<SourceRegistration> {
         val agg = aggregatorIntent() ?: return emptyList()
         val rootSlug = NamespacedId.slug(agg.projectPath, rootProjectName = agg.rootProjectName)
-        val aggregatorRegs = agg.sourceSets.map { ss ->
+        val aggregatorRegs = agg.outputSourceSets.map { ss ->
             SourceRegistration(
                 projectPath = agg.projectPath,
                 sourceSetName = ss,
@@ -85,7 +87,7 @@ abstract class KensaSiteService : BuildService<BuildServiceParameters.None> {
         }
         val contributorRegs = contributorIntents().flatMap { c ->
             val slug = NamespacedId.slug(c.projectPath, rootProjectName = c.rootProjectName)
-            c.sourceSets.map { ss ->
+            c.outputSourceSets.map { ss ->
                 SourceRegistration(
                     projectPath = c.projectPath,
                     sourceSetName = ss,

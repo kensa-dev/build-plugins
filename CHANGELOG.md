@@ -1,5 +1,25 @@
 <h2 class="github">Changelog</h2>
 
+### Unreleased
+
+**Split compiler-plugin source sets from output source sets (Gradle).** The single `sourceSets` property had drifted to mean three things at once — *(a)* which Kotlin compilations the Kensa compiler plugin instruments, *(b)* where `dev.kensa:kensa-core` is added at runtime, *(c)* which Test tasks emit Kensa output. (c) is now a separate property.
+
+- New `outputSourceSets: SetProperty<String>` on the `kensa { }` extension. Defaults to `setOf("test")`. Source sets listed here are the Test tasks that emit on-disk reports (`build/kensa/index.html`, JSON indices, the `Kensa Output : …` banner) and, in site mode, contribute per-source bundles to the assembled site. A source set listed in `outputSourceSets` gets `kensa-core` on its runtime classpath even if the compiler plugin is not applied to it.
+- `sourceSets` is now strictly **compiler-plugin source sets**. Default unchanged (`setOf("test")`).
+- Site-mode wiring (`KensaSourceArgsProvider`, `finalizedBy(assembleKensaSite)`, `expectedSourceIds`) now reads `outputSourceSets`.
+
+Three patterns now expressible cleanly:
+
+| Pattern | `sourceSets` | `outputSourceSets` |
+|---|---|---|
+| No compiler-plugin features used | `emptySet()` | `setOf("test")` |
+| Expandable support code in `main` only | `setOf("main")` | `setOf("test")` |
+| Expandable code in main + test sets | `setOf("main", "test")` | `setOf("test")` |
+
+**Migration:** if you previously set `sourceSets = setOf("test", "acceptanceTest")` to wire both Test tasks for Kensa output, also set `outputSourceSets = setOf("test", "acceptanceTest")` — `sourceSets` no longer drives output wiring. Users on default config need no changes.
+
+Paired upstream change (kensa-core): the JUnit Platform `TestExecutionListener` is being updated to short-circuit `writeAllResults()` when no Kensa tests ran in a plan, so `kensa-core` flowing transitively onto a non-Kensa test classpath (e.g. via the `main → testRuntimeClasspath` path) no longer prints the banner or writes empty reports. Bump `kensa-core` to the release carrying that fix once available.
+
 ### v0.9.3
 
 **Multi-submodule site aggregation (Gradle).** Apply `dev.kensa.gradle-plugin` with `kensa { site = true }` to the rootProject of a multi-project build and any subprojects that also apply the plugin auto-register their source sets. A single `:assembleKensaSite` at the root produces an aggregated manifest at `<rootDir>/build/kensa-site/` with namespaced ids (`web__test`, `libs-billing__uiTest`). Title overrides via `kensa.sourceTitles["<slug>__<sourceSet>"]` on the root; contributor-local titles via `kensa.sourceTitles["<sourceSet>"]`. kensa-core version mismatch across modules fails fast. Single-project and standalone subproject behavior is unchanged.
