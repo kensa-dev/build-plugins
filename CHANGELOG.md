@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+### v0.9.4
+
 **Split compiler-plugin source sets from output source sets (Gradle).** The single `sourceSets` property had drifted to mean three things at once — *(a)* which Kotlin compilations the Kensa compiler plugin instruments, *(b)* where `dev.kensa:kensa-core` is added at runtime, *(c)* which Test tasks emit Kensa output. (c) is now a separate property.
 
 - New `outputSourceSets: SetProperty<String>` on the `kensa { }` extension. Defaults to `setOf("test")`. Source sets listed here are the Test tasks that emit on-disk reports (`build/kensa/index.html`, JSON indices, the `Kensa Output : …` banner) and, in site mode, contribute per-source bundles to the assembled site. A source set listed in `outputSourceSets` gets `kensa-core` on its runtime classpath even if the compiler plugin is not applied to it.
@@ -18,7 +20,7 @@ Three patterns now expressible cleanly:
 
 **Migration:** if you previously set `sourceSets = setOf("test", "acceptanceTest")` to wire both Test tasks for Kensa output, also set `outputSourceSets = setOf("test", "acceptanceTest")` — `sourceSets` no longer drives output wiring. Users on default config need no changes.
 
-Paired upstream change (kensa-core): the JUnit Platform `TestExecutionListener` is being updated to short-circuit `writeAllResults()` when no Kensa tests ran in a plan, so `kensa-core` flowing transitively onto a non-Kensa test classpath (e.g. via the `main → testRuntimeClasspath` path) no longer prints the banner or writes empty reports. Bump `kensa-core` to the release carrying that fix once available.
+Paired upstream change: the default `kensa-core` is bumped to **0.8.5**, whose JUnit Platform `TestExecutionListener` short-circuits `writeAllResults()` when no Kensa tests ran in a plan. So `kensa-core` flowing transitively onto a non-Kensa test classpath (e.g. via the `main → testRuntimeClasspath` path) no longer prints the banner or writes empty reports.
 
 ### v0.9.3
 
