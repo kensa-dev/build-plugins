@@ -81,7 +81,7 @@ class SiteModeFunctionalTest {
             """
             plugins {
                 id("dev.kensa.gradle-plugin")
-                id("org.jetbrains.kotlin.jvm") version "2.3.21"
+                id("org.jetbrains.kotlin.jvm") version "2.4.0"
             }
 
             repositories {
@@ -269,7 +269,7 @@ class SiteModeFunctionalTest {
     private fun writeFixtureProject(
         projectDir: Path,
         repo: Path = defaultRepo(projectDir),
-        kotlinVersion: String = "2.3.21",
+        kotlinVersion: String = "2.4.0",
         kensaCoreVersionOverride: String? = null,
         sourceTitles: Map<String, String> = emptyMap(),
     ) {

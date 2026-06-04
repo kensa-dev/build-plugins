@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+**Kotlin 2.4.0.** Bumped to Kotlin 2.4.0, which raises the consumer `MIN_KOTLIN_VERSION` check to 2.4.0. The Kensa compiler plugin shipped via `dev.kensa:kensa-compiler-plugin` is binary-locked to the Kotlin compiler version, so consumers must be on Kotlin 2.4.0. **Release pairing:** publish only alongside a Kotlin-2.4.0-built `kensa-core` release and bump the bundled default `kensa-core-version.txt` to it — otherwise the default compiler-plugin coordinate (still a 2.3.x build) crashes under the required 2.4.0 compiler.
+
 ### v0.9.4
 
 **Split compiler-plugin source sets from output source sets (Gradle).** The single `sourceSets` property had drifted to mean three things at once — *(a)* which Kotlin compilations the Kensa compiler plugin instruments, *(b)* where `dev.kensa:kensa-core` is added at runtime, *(c)* which Test tasks emit Kensa output. (c) is now a separate property.
