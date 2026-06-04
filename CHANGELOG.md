@@ -1,8 +1,8 @@
 <h2 class="github">Changelog</h2>
 
-### Unreleased
+### v0.9.5
 
-**Kotlin 2.4.0.** Bumped to Kotlin 2.4.0, which raises the consumer `MIN_KOTLIN_VERSION` check to 2.4.0. The Kensa compiler plugin shipped via `dev.kensa:kensa-compiler-plugin` is binary-locked to the Kotlin compiler version, so consumers must be on Kotlin 2.4.0. **Release pairing:** publish only alongside a Kotlin-2.4.0-built `kensa-core` release and bump the bundled default `kensa-core-version.txt` to it — otherwise the default compiler-plugin coordinate (still a 2.3.x build) crashes under the required 2.4.0 compiler.
+**Bump to Kotlin 2.4.0 which raises the consumer `MIN_KOTLIN_VERSION` check to 2.4.0.
 
 ### v0.9.4
 
