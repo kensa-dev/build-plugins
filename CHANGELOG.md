@@ -1,5 +1,9 @@
 <h2 class="github">Changelog</h2>
 
+### v0.9.6
+
+** default kensa-core → 0.8.8
+
 ### v0.9.5
 
 **Bump to Kotlin 2.4.0 which raises the consumer `MIN_KOTLIN_VERSION` check to 2.4.0.
