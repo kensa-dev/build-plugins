@@ -25,6 +25,11 @@ The plugin and `dev.kensa:kensa-core` version independently (since plugin v0.9.0
 
 | Plugin     | Default kensa-core | Min kensa-core | Notes                                |
 | ---------- | ------------------ | -------------- | ------------------------------------ |
+| 0.9.6      | 0.8.8              | 0.8.0          | Default kensa-core bumped to 0.8.8   |
+| 0.9.5      | 0.8.7              | 0.8.0          | Built against Kotlin 2.4.0 — apply-time minimum Kotlin is now 2.4.0; default kensa-core bumped to 0.8.7 |
+| 0.9.4      | 0.8.5              | 0.8.0          | Splits compiler-plugin source sets (`sourceSets`) from output source sets (new `outputSourceSets`); default kensa-core bumped to 0.8.5 (listener short-circuits when no Kensa tests ran) |
+| 0.9.3      | 0.8.4              | 0.8.0          | Multi-module site aggregation across a Gradle multi-project build; default kensa-core bumped to 0.8.4 |
+| 0.9.2      | 0.8.3              | 0.8.0          | Default kensa-core bumped to 0.8.3   |
 | 0.9.1      | 0.8.1              | 0.8.0          | Site-mode ergonomics: `sourceTitles` DSL, auto-assemble, per-source component diagrams |
 | 0.9.0      | 0.8.0              | 0.8.0          | First decoupled release              |
 | 0.7.x      | 0.7.x              | —              | Same-version pairing (no override)   |
