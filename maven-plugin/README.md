@@ -27,6 +27,7 @@ The plugin and `dev.kensa:kensa-core` version independently (since plugin v0.9.0
 
 | Plugin     | Default kensa-core | Min kensa-core | Notes                                |
 | ---------- | ------------------ | -------------- | ------------------------------------ |
+| 0.9.7      | 0.8.8              | 0.8.0          | Version bump only — paired Gradle-plugin site-mode resolution fix; no Maven changes |
 | 0.9.6      | 0.8.8              | 0.8.0          | Default kensa-core bumped to 0.8.8   |
 | 0.9.5      | 0.8.7              | 0.8.0          | Default kensa-core bumped to 0.8.7 (the Kotlin 2.4.0 floor is a Gradle-apply-time change only) |
 | 0.9.4      | 0.8.5              | 0.8.0          | Default kensa-core bumped to 0.8.5 (listener short-circuits when no Kensa tests ran); the `outputSourceSets` split is Gradle-only |

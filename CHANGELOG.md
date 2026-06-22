@@ -1,5 +1,9 @@
 <h2 class="github">Changelog</h2>
 
+### v0.9.7
+
+**Fix site-mode `:assembleKensaSite` failing to resolve kensa-core (#5).** The `kensaShellResources` configuration resolved `dev.kensa:kensa-core` with no attributes; kensa-core publishes two variants differing only by `org.gradle.dependency.bundling`, so resolution failed with *"Cannot choose between the available variants"* on aggregator roots (which apply no JVM plugin and so lack the Java ecosystem's default `external` preference). The configuration now pins `bundling=external` to select the plain, non-shadowed jar.
+
 ### v0.9.6
 
 ** default kensa-core → 0.8.8
