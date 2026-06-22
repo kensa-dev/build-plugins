@@ -7,6 +7,7 @@ import dev.kensa.gradle.site.Role
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ModuleDependency
+import org.gradle.api.attributes.Bundling
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.testing.Test
@@ -145,6 +146,15 @@ class KensaGradlePlugin : KotlinCompilerPluginSupportPlugin {
             isCanBeResolved = true
             isTransitive = false
             description = "Source jars for the Kensa multi-source site shell (kensa.js, logo.svg)."
+            // kensa-core publishes two variants distinguished only by org.gradle.dependency.bundling
+            // (external -> runtimeElements, shadowed -> shadowRuntimeElements). Pin to the plain,
+            // non-shadowed jar so resolution is unambiguous; the shell resources live in it.
+            attributes {
+                it.attribute(
+                    Bundling.BUNDLING_ATTRIBUTE,
+                    project.objects.named(Bundling::class.java, Bundling.EXTERNAL),
+                )
+            }
         }
         val resolvedKensaCoreVersion = extension.kensaCoreVersion.get()
         project.dependencies.add(shellConfig.name, "dev.kensa:kensa-core:$resolvedKensaCoreVersion")
@@ -234,6 +244,15 @@ class KensaGradlePlugin : KotlinCompilerPluginSupportPlugin {
             isCanBeResolved = true
             isTransitive = false
             description = "Source jars for the Kensa multi-source site shell (kensa.js, logo.svg)."
+            // kensa-core publishes two variants distinguished only by org.gradle.dependency.bundling
+            // (external -> runtimeElements, shadowed -> shadowRuntimeElements). Pin to the plain,
+            // non-shadowed jar so resolution is unambiguous; the shell resources live in it.
+            attributes {
+                it.attribute(
+                    Bundling.BUNDLING_ATTRIBUTE,
+                    project.objects.named(Bundling::class.java, Bundling.EXTERNAL),
+                )
+            }
         }
         project.dependencies.add(shellConfig.name, "dev.kensa:kensa-core:${agg.kensaCoreVersion}")
 

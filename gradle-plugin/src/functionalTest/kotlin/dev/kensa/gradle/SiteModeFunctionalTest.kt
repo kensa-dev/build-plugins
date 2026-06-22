@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.jar.JarEntry
-import java.util.jar.JarOutputStream
 
 class SiteModeFunctionalTest {
 
@@ -336,37 +334,12 @@ class SiteModeFunctionalTest {
      * site-assembly task. Calling this twice with different bytes simulates a kensa UI
      * update being republished to maven local.
      */
+    // Delegates to the shared publisher in MultiProjectSiteModeFunctionalTest.kt.
     private fun publishFakeKensaCore(
         repoRoot: Path,
         kensaJsBytes: ByteArray = "// shell\n".toByteArray(),
         logoSvgBytes: ByteArray = "<svg/>".toByteArray(),
         version: String = kensaCoreVersion,
-    ) {
-        val artifactDir = repoRoot.resolve("dev/kensa/kensa-core/$version")
-        Files.createDirectories(artifactDir)
-
-        val jarPath = artifactDir.resolve("kensa-core-$version.jar")
-        JarOutputStream(Files.newOutputStream(jarPath)).use { jos ->
-            jos.putNextEntry(JarEntry("kensa.js"))
-            jos.write(kensaJsBytes)
-            jos.closeEntry()
-            jos.putNextEntry(JarEntry("logo.svg"))
-            jos.write(logoSvgBytes)
-            jos.closeEntry()
-        }
-
-        Files.writeString(
-            artifactDir.resolve("kensa-core-$version.pom"),
-            """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <project xmlns="http://maven.apache.org/POM/4.0.0">
-              <modelVersion>4.0.0</modelVersion>
-              <groupId>dev.kensa</groupId>
-              <artifactId>kensa-core</artifactId>
-              <version>$version</version>
-              <packaging>jar</packaging>
-            </project>
-            """.trimIndent()
-        )
-    }
+        withVariants: Boolean = false,
+    ) = publishFakeKensaCore(repoRoot, version, kensaJsBytes, logoSvgBytes, withVariants)
 }

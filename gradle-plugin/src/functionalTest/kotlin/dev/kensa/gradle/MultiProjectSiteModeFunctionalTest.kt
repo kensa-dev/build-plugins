@@ -7,8 +7,10 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import java.io.ByteArrayOutputStream
 import java.nio.file.Files
 import java.nio.file.Path
+import java.security.MessageDigest
 import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
 
@@ -236,6 +238,29 @@ class MultiProjectSiteModeFunctionalTest {
         Files.exists(projectDir.resolve("build/kensa-site/sources/web__test")) shouldBe true
     }
 
+    @Test
+    fun `aggregator resolves shell resources when kensa-core publishes external and shadowed variants`(@TempDir projectDir: Path) {
+        // Regression for the variant-ambiguity failure reported on a real aggregator project:
+        // kensa-core exposes runtimeElements (external) and shadowRuntimeElements (shadowed)
+        // distinguished only by org.gradle.dependency.bundling. kensaShellResources must pin
+        // bundling=external or :assembleKensaSite fails with "Cannot choose between variants".
+        val repo = projectDir.resolve("test-repo")
+        publishFakeKensaCore(repo, withVariants = true)
+        writeMultiProjectFixture(
+            projectDir,
+            repo,
+            subprojects = listOf(
+                Sub(":web", sourceSets = listOf("test")),
+            ),
+        )
+        prePopulate(projectDir, "web__test", titleText = "Web Tests")
+
+        val result = runner(projectDir).build()
+
+        result.task(":assembleKensaSite")?.outcome shouldBe TaskOutcome.SUCCESS
+        Files.exists(projectDir.resolve("build/kensa-site/kensa.js")) shouldBe true
+    }
+
     private data class Sub(
         val path: String,
         val sourceSets: List<String>,
@@ -348,12 +373,29 @@ class MultiProjectSiteModeFunctionalTest {
         kensaJsBytes: ByteArray = "// shell\n".toByteArray(),
         logoSvgBytes: ByteArray = "<svg/>".toByteArray(),
         version: String = kensaCoreVersion,
-    ) {
-        val artifactDir = repoRoot.resolve("dev/kensa/kensa-core/$version")
-        Files.createDirectories(artifactDir)
+        withVariants: Boolean = false,
+    ) = publishFakeKensaCore(repoRoot, version, kensaJsBytes, logoSvgBytes, withVariants)
+}
 
-        val jarPath = artifactDir.resolve("kensa-core-$version.jar")
-        JarOutputStream(Files.newOutputStream(jarPath)).use { jos ->
+/**
+ * Publishes a fake `dev.kensa:kensa-core` into [repoRoot]. By default it has only a POM (a single
+ * implicit variant). With [withVariants] it also emits Gradle Module Metadata exposing two runtime
+ * variants distinguished ONLY by `org.gradle.dependency.bundling` (external/shadowed) — mirroring
+ * the real kensa-core publication. That makes resolution ambiguous unless the consumer pins the
+ * bundling attribute, which is the regression guard for `kensaShellResources`.
+ */
+internal fun publishFakeKensaCore(
+    repoRoot: Path,
+    version: String,
+    kensaJsBytes: ByteArray = "// shell\n".toByteArray(),
+    logoSvgBytes: ByteArray = "<svg/>".toByteArray(),
+    withVariants: Boolean = false,
+) {
+    val artifactDir = repoRoot.resolve("dev/kensa/kensa-core/$version")
+    Files.createDirectories(artifactDir)
+
+    val jarBytes = ByteArrayOutputStream().also { baos ->
+        JarOutputStream(baos).use { jos ->
             jos.putNextEntry(JarEntry("kensa.js"))
             jos.write(kensaJsBytes)
             jos.closeEntry()
@@ -361,19 +403,53 @@ class MultiProjectSiteModeFunctionalTest {
             jos.write(logoSvgBytes)
             jos.closeEntry()
         }
+    }.toByteArray()
+    val jarName = "kensa-core-$version.jar"
+    Files.write(artifactDir.resolve(jarName), jarBytes)
 
-        Files.writeString(
-            artifactDir.resolve("kensa-core-$version.pom"),
-            """
-            <?xml version="1.0" encoding="UTF-8"?>
-            <project xmlns="http://maven.apache.org/POM/4.0.0">
-              <modelVersion>4.0.0</modelVersion>
-              <groupId>dev.kensa</groupId>
-              <artifactId>kensa-core</artifactId>
-              <version>$version</version>
-              <packaging>jar</packaging>
-            </project>
-            """.trimIndent()
-        )
-    }
+    // The marker comment makes Gradle read the .module file in preference to the POM.
+    val gradleMarker =
+        if (withVariants) "\n              <!-- do_not_remove: published-with-gradle-metadata -->" else ""
+    Files.writeString(
+        artifactDir.resolve("kensa-core-$version.pom"),
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <project xmlns="http://maven.apache.org/POM/4.0.0">
+          <modelVersion>4.0.0</modelVersion>$gradleMarker
+          <groupId>dev.kensa</groupId>
+          <artifactId>kensa-core</artifactId>
+          <version>$version</version>
+          <packaging>jar</packaging>
+        </project>
+        """.trimIndent()
+    )
+
+    if (!withVariants) return
+
+    val shadowName = "kensa-core-$version-all.jar"
+    Files.write(artifactDir.resolve(shadowName), jarBytes)
+    val sha512 = MessageDigest.getInstance("SHA-512").digest(jarBytes).joinToString("") { "%02x".format(it) }
+    val size = jarBytes.size
+    fun fileEntry(name: String) = """{ "name": "$name", "url": "$name", "size": $size, "sha512": "$sha512" }"""
+    Files.writeString(
+        artifactDir.resolve("kensa-core-$version.module"),
+        """
+        {
+          "formatVersion": "1.1",
+          "component": { "group": "dev.kensa", "module": "kensa-core", "version": "$version" },
+          "variants": [
+            {
+              "name": "runtimeElements",
+              "attributes": { "org.gradle.category": "library", "org.gradle.dependency.bundling": "external", "org.gradle.libraryelements": "jar", "org.gradle.usage": "java-runtime" },
+              "files": [ ${fileEntry(jarName)} ]
+            },
+            {
+              "name": "shadowRuntimeElements",
+              "attributes": { "org.gradle.category": "library", "org.gradle.dependency.bundling": "shadowed", "org.gradle.libraryelements": "jar", "org.gradle.usage": "java-runtime" },
+              "files": [ ${fileEntry(shadowName)} ]
+            }
+          ]
+        }
+        """.trimIndent()
+    )
 }
