@@ -25,6 +25,11 @@ class SiteAssembler(
      */
     private val sourceTitles: Map<String, String> = emptyMap(),
 ) {
+    private companion object {
+        /** kensa-core's default `titleText` when no code-side title or `kensa.source.title` is set. */
+        const val DEFAULT_TITLE = "Index"
+    }
+
     @OptIn(kotlin.io.path.ExperimentalPathApi::class)
     fun assembleManifest() {
         val sourcesDir = siteRoot.resolve("sources")
@@ -52,12 +57,24 @@ class SiteAssembler(
         val included = (expectedSourceIds intersect present).sorted()
         val sources = included.map { id ->
             val configPath = sourcesDir.resolve(id).resolve("configuration.json")
+            val codeSideTitle = extractTitle(configPath.readText())
             val override = sourceTitles[id]
             val title = if (override != null) {
+                // The build-declared title wins, but a code-side title set on the same source is
+                // then silently discarded — a documented but confusing precedence. Warn only when
+                // both are set to genuinely different, non-default values (the exact "I set it in
+                // two places" case), so teams using just one mechanism see nothing.
+                if (codeSideTitle != null && codeSideTitle != DEFAULT_TITLE && codeSideTitle != override) {
+                    logger.warn(
+                        "Kensa source '$id': build sourceTitles \"$override\" overrides the code-side " +
+                        "title \"$codeSideTitle\" (Kensa.konfigure { titleText = ... }). The build value " +
+                        "wins; remove one to resolve the ambiguity."
+                    )
+                }
                 applyTitleOverride(configPath, override)
                 override
             } else {
-                extractTitle(configPath.readText()) ?: id
+                codeSideTitle ?: id
             }
             SourceEntry(id = id, title = title, url = "sources/$id")
         }

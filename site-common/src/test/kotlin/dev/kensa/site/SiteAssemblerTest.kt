@@ -156,6 +156,42 @@ class SiteAssemblerTest {
         tempDir.resolve("sources/uiTest/configuration.json").toFile().readText() shouldBe before
     }
 
+    @Test
+    fun `warns when sourceTitles overrides a different code-side title`(@TempDir tempDir: Path) {
+        prePopulate(tempDir, "uiTest", "Code-side Title")
+        val log = CapturingLogger()
+
+        SiteAssembler(
+            siteRoot = tempDir,
+            expectedSourceIds = setOf("uiTest"),
+            kensaVersion = "0.8.0",
+            logger = log,
+            sourceTitles = mapOf("uiTest" to "Build-declared Title"),
+        ).assembleManifest()
+
+        log.warn.size shouldBe 1
+        log.warn[0] shouldContain "uiTest"
+        log.warn[0] shouldContain "Build-declared Title"
+        log.warn[0] shouldContain "Code-side Title"
+    }
+
+    @Test
+    fun `does not warn when code-side title is the kensa-core default`(@TempDir tempDir: Path) {
+        prePopulate(tempDir, "uiTest", "Index")
+        val log = CapturingLogger()
+
+        SiteAssembler(
+            siteRoot = tempDir,
+            expectedSourceIds = setOf("uiTest"),
+            kensaVersion = "0.8.0",
+            logger = log,
+            sourceTitles = mapOf("uiTest" to "Build-declared Title"),
+        ).assembleManifest()
+
+        log.warn.shouldContainExactly()
+        tempDir.resolve("manifest.json").toFile().readText() shouldContain "\"title\": \"Build-declared Title\""
+    }
+
     private fun prePopulate(siteRoot: Path, sourceId: String, titleText: String) {
         val dir = siteRoot.resolve("sources/$sourceId")
         Files.createDirectories(dir)
