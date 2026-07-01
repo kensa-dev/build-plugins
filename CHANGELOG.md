@@ -1,5 +1,11 @@
 <h2 class="github">Changelog</h2>
 
+### v0.9.8
+
+**Default kensa-core → 0.8.10.** 0.8.10 adds `@Fixture` **factory functions** — a `@Fixture("Key")`-annotated function whose no-name `fixture { }` body the Kensa compiler plugin rewrites to inject the key and the factory's value parameters, giving each `(key, args)` a distinct memoized identity. No consumer configuration change: the plugin already applies the compiler plugin to your `sourceSets`, so factory fixtures work as soon as you're on this default. 0.8.10 also fixes two `@RenderedValue` rendering bugs (#149 chained reference to a parameterised method; #150 top-level `@RenderedValue` `ClassNotFoundException`).
+
+**Warn when `sourceTitles` overrides a code-side title in site mode.** When a `kensa.sourceTitles[...]` entry shadows a title the test runtime already wrote to that source's `configuration.json`, the plugin now logs a warning naming the source, so an unintended override is visible rather than silent.
+
 ### v0.9.7
 
 **Fix site-mode `:assembleKensaSite` failing to resolve kensa-core (#5).** The `kensaShellResources` configuration resolved `dev.kensa:kensa-core` with no attributes; kensa-core publishes two variants differing only by `org.gradle.dependency.bundling`, so resolution failed with *"Cannot choose between the available variants"* on aggregator roots (which apply no JVM plugin and so lack the Java ecosystem's default `external` preference). The configuration now pins `bundling=external` to select the plain, non-shadowed jar.
