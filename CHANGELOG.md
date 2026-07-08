@@ -1,5 +1,9 @@
 <h2 class="github">Changelog</h2>
 
+### v0.9.9
+
+**Default kensa-core → 0.8.12.** Rolls up two kensa-core releases since 0.9.8's default of 0.8.10. 0.8.11 adds multi-assertion `thenEventually` / `thenContinually` blocks and fixes `/*+ ... */` sentence hints in Java test sources (#151). 0.8.12 fixes `@ExpandableSentence` and `@RenderedValue` with value class parameters and return types (#160), fixes array parameter types in parameterized tests (#161), and drops the reflective method lookup from instrumented calls. Site-mode reports pick up the matching UI shell. No consumer configuration change.
+
 ### v0.9.8
 
 **Default kensa-core → 0.8.10.** 0.8.10 adds `@Fixture` **factory functions** — a `@Fixture("Key")`-annotated function whose no-name `fixture { }` body the Kensa compiler plugin rewrites to inject the key and the factory's value parameters, giving each `(key, args)` a distinct memoized identity. No consumer configuration change: the plugin already applies the compiler plugin to your `sourceSets`, so factory fixtures work as soon as you're on this default. 0.8.10 also fixes two `@RenderedValue` rendering bugs (#149 chained reference to a parameterised method; #150 top-level `@RenderedValue` `ClassNotFoundException`).

@@ -25,6 +25,7 @@ The plugin and `dev.kensa:kensa-core` version independently (since plugin v0.9.0
 
 | Plugin     | Default kensa-core | Min kensa-core | Notes                                |
 | ---------- | ------------------ | -------------- | ------------------------------------ |
+| 0.9.9      | 0.8.12             | 0.8.0          | Default kensa-core bumped to 0.8.12 (value class params in `@ExpandableSentence`/`@RenderedValue` #160; array parameter types in parameterized tests #161; multi-assertion polling blocks from 0.8.11) |
 | 0.9.8      | 0.8.10             | 0.8.0          | Default kensa-core bumped to 0.8.10 (`@Fixture` factory functions; `@RenderedValue` fixes #149/#150). Site mode warns when `sourceTitles` overrides a code-side title |
 | 0.9.7      | 0.8.8              | 0.8.0          | Fix site-mode `:assembleKensaSite` failing to resolve kensa-core on aggregator roots (variant ambiguity on `org.gradle.dependency.bundling`); no kensa-core change |
 | 0.9.6      | 0.8.8              | 0.8.0          | Default kensa-core bumped to 0.8.8   |
