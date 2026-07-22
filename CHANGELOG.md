@@ -1,5 +1,9 @@
 <h2 class="github">Changelog</h2>
 
+### v0.9.10
+
+**Default kensa-core → 0.8.14.** Rolls up two kensa-core releases since 0.9.9's default of 0.8.12. 0.8.13 fixes a parser crash on `@RenderedValue` identifiers used as `fixtures[...]`/`outputs[...]` subscript keys (#163), shows `Named` parameterized-argument labels (#162), renders opaque lambda/builder arguments by type name, and cuts test-explorer re-renders in large reports. 0.8.14 fixes protected phrases matching inside longer camel words (#166), the parameterised header hover truncating (#165), factory calls inside a `fixtures[...]` subscript leaking the accessor word, and a sweep of path-expression rendering gotchas: `!!` non-null assertions (#168), Kotlin stdlib extension functions resolving instead of rendering `null` (#169), output keys with non-word characters (#170), explicit type arguments (#171), and factory fixture navigation paths resolving to the navigated value (#172). Site-mode reports pick up the matching UI shell. No consumer configuration change.
+
 ### v0.9.9
 
 **Default kensa-core → 0.8.12.** Rolls up two kensa-core releases since 0.9.8's default of 0.8.10. 0.8.11 adds multi-assertion `thenEventually` / `thenContinually` blocks and fixes `/*+ ... */` sentence hints in Java test sources (#151). 0.8.12 fixes `@ExpandableSentence` and `@RenderedValue` with value class parameters and return types (#160), fixes array parameter types in parameterized tests (#161), and drops the reflective method lookup from instrumented calls. Site-mode reports pick up the matching UI shell. No consumer configuration change.
