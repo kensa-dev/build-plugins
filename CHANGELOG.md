@@ -1,5 +1,11 @@
 <h2 class="github">Changelog</h2>
 
+### v0.9.11
+
+**Default kensa-core → 0.8.15.** 0.8.15 adds the `kensa mcp` CLI server, negative matcher assertions (`noneMatching` in the kotest/hamkrest test-support cores plus direct `thenContinually(spec)` overloads), Given/When/Then keyword recognition in expandable sentence names (#173), tokenised expandable-sentence parameter names (#177), a content-sized expandable hover popup (#176), Safari sequence/component-diagram rendering (#174), and test-card corner fixes (#175). Site-mode reports pick up the matching UI shell.
+
+**Compatibility — upgrade this plugin when you move to kensa-core 0.8.15+.** The compiler-plugin hook signatures changed in 0.8.15, so a pre-0.8.15 compiler plugin (the default in 0.9.10 and earlier) compiling against a 0.8.15+ `kensa` runtime fails with an internal compiler error (`IndexOutOfBoundsException: Index 3 out of bounds for length 3` in `KensaIrGenerationExtension`). Either take this release, or set `kensaCoreVersion` to match your runtime — pairing it via your version catalog (`kensaCoreVersion = libs.versions.kensa.get()`) keeps the two in lockstep.
+
 ### v0.9.10
 
 **Default kensa-core → 0.8.14.** Rolls up two kensa-core releases since 0.9.9's default of 0.8.12. 0.8.13 fixes a parser crash on `@RenderedValue` identifiers used as `fixtures[...]`/`outputs[...]` subscript keys (#163), shows `Named` parameterized-argument labels (#162), renders opaque lambda/builder arguments by type name, and cuts test-explorer re-renders in large reports. 0.8.14 fixes protected phrases matching inside longer camel words (#166), the parameterised header hover truncating (#165), factory calls inside a `fixtures[...]` subscript leaking the accessor word, and a sweep of path-expression rendering gotchas: `!!` non-null assertions (#168), Kotlin stdlib extension functions resolving instead of rendering `null` (#169), output keys with non-word characters (#170), explicit type arguments (#171), and factory fixture navigation paths resolving to the navigated value (#172). Site-mode reports pick up the matching UI shell. No consumer configuration change.
