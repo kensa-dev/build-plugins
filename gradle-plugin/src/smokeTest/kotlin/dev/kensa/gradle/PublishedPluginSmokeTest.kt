@@ -35,7 +35,7 @@ class PublishedPluginSmokeTest {
             """
             plugins {
                 id("dev.kensa.gradle-plugin") version "$pluginVersion"
-                id("org.jetbrains.kotlin.jvm") version "2.4.0"
+                id("org.jetbrains.kotlin.jvm") version "2.4.10"
             }
             """.trimIndent()
         )
