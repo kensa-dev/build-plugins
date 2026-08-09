@@ -1,5 +1,11 @@
 <h2 class="github">Changelog</h2>
 
+### v0.9.12
+
+**Default kensa-core → 0.8.16.** 0.8.16 adds chained references through `@RenderedValueContainer` (now honoured on test-method parameters as well as fields, with the chain allowed to precede a call taking arguments), the `by fixtures(fx)` property delegate for exposing per-invocation fixture values from shared parameterised-test data, and fixture-token rendering for fixture-delegated properties. It also renders qualified enum constants cleanly (#180), fixes delegated Kotlin properties in rendered paths, restores natural diagram glyph shapes by collapsing label whitespace at source including participant and group labels (#179), and corrects the Setup group colour for labels with stray whitespace. Site-mode reports pick up the matching UI shell.
+
+**Kotlin 2.4.10, Gradle 9.7.0 — consumer Kotlin floor rises.** The plugin is built with Kotlin 2.4.10 and its minimum supported consumer Kotlin version tracks that, so projects on an older Kotlin are rejected at configuration time with a clear message. Stay on 0.9.11 until your project reaches Kotlin 2.4.10, or upgrade both together; pairing `kensaCoreVersion` via your version catalog keeps runtime and compiler plugin in lockstep as ever.
+
 ### v0.9.11
 
 **Default kensa-core → 0.8.15.** 0.8.15 adds the `kensa mcp` CLI server, negative matcher assertions (`noneMatching` in the kotest/hamkrest test-support cores plus direct `thenContinually(spec)` overloads), Given/When/Then keyword recognition in expandable sentence names (#173), tokenised expandable-sentence parameter names (#177), a content-sized expandable hover popup (#176), Safari sequence/component-diagram rendering (#174), and test-card corner fixes (#175). Site-mode reports pick up the matching UI shell.
