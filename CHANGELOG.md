@@ -1,5 +1,11 @@
 <h2 class="github">Changelog</h2>
 
+### v0.9.13
+
+**Default kensa-core → 0.9.0.** The API freeze ahead of 1.0: the supported surface is now sealed by the compiler, with the policy and support matrix in kensa-core's `COMPATIBILITY.md`. 0.9.0 also adds `@Epic` (#194), the report overview page (#195) and replay links on issue badges, and fixes parallel invocations of the same test method losing data, value renderers being bypassed for parameterised arguments (#189), empty string parameters rendering as `null` (#185), dead issue links from an unconfigured tracker (#191), `kensa.disable.output` ignoring most values (#192) and fixtures/outputs not resolving inside polling blocks (#190). Site-mode reports pick up the matching UI shell, including the new overview page.
+
+**Compatibility — let the plugin pair core and the adapters.** kensa-core 0.9.0 makes its implementation packages `internal`, and Kotlin mangles the JVM names of `internal` functions, so a pre-0.9.0 `kensa-junit5` / `kensa-testng` / `kensa-kotest` against a 0.9.0 core can fail at runtime rather than at compile time. The plugin already keeps core and adapters in lockstep via `kensaCoreVersion`; if you pin adapter versions explicitly, move them to 0.9.0 together. Kotlin consumers importing from the implementation packages (`dev.kensa.parse`, `dev.kensa.state`, `dev.kensa.output`, `dev.kensa.service`, `dev.kensa.util`) will no longer compile — those types were never supported API. No plugin configuration change; Kotlin floor stays 2.4.10 and Gradle 9.7.0.
+
 ### v0.9.12
 
 **Default kensa-core → 0.8.16.** 0.8.16 adds chained references through `@RenderedValueContainer` (now honoured on test-method parameters as well as fields, with the chain allowed to precede a call taking arguments), the `by fixtures(fx)` property delegate for exposing per-invocation fixture values from shared parameterised-test data, and fixture-token rendering for fixture-delegated properties. It also renders qualified enum constants cleanly (#180), fixes delegated Kotlin properties in rendered paths, restores natural diagram glyph shapes by collapsing label whitespace at source including participant and group labels (#179), and corrects the Setup group colour for labels with stray whitespace. Site-mode reports pick up the matching UI shell.

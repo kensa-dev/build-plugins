@@ -27,6 +27,9 @@ The plugin and `dev.kensa:kensa-core` version independently (since plugin v0.9.0
 
 | Plugin     | Default kensa-core | Min kensa-core | Notes                                |
 | ---------- | ------------------ | -------------- | ------------------------------------ |
+| 0.9.13     | 0.9.0              | 0.8.0          | Default kensa-core bumped to 0.9.0 (the API freeze ahead of 1.0: implementation packages `internal`, `COMPATIBILITY.md`; `@Epic` and the report overview page #194/#195; replay links on issue badges; fixes #185, #189–#193); no Maven changes |
+| 0.9.12     | 0.8.16             | 0.8.0          | Built with Kotlin 2.4.10 — minimum consumer Kotlin is now 2.4.10; default kensa-core 0.8.16 (container chains, `by fixtures(fx)` delegate, qualified enum constants #180, diagram glyphs #179); no Maven changes |
+| 0.9.11     | 0.8.15             | 0.8.0          | Default kensa-core bumped to 0.8.15 (`kensa mcp` CLI server; negative matcher assertions; #174/#176/#177); no Maven changes |
 | 0.9.10     | 0.8.14             | 0.8.0          | Default kensa-core bumped to 0.8.14 (path-expression rendering fixes #168–#172; protected phrase word boundaries #166; parameterised header hover #165; from 0.8.13: #162/#163); no Maven changes |
 | 0.9.9      | 0.8.12             | 0.8.0          | Default kensa-core bumped to 0.8.12 (value class params in `@ExpandableSentence`/`@RenderedValue` #160; array parameter types #161; multi-assertion polling blocks from 0.8.11); no Maven changes |
 | 0.9.8      | 0.8.10             | 0.8.0          | Default kensa-core bumped to 0.8.10 (`@Fixture` factory functions; `@RenderedValue` fixes #149/#150); no Maven changes |
