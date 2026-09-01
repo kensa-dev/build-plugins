@@ -1,5 +1,9 @@
 <h2 class="github">Changelog</h2>
 
+### v0.9.14
+
+**Default kensa-core → 0.9.2.** 0.9.2 writes a `run.json` marker into every output bundle — start, finish, and live counts of classes and passed/failed/disabled methods as classes complete — and adds the MCP run-state tools built on it: `run_status`, `await_results`, bundle freshness on every listing, `captured_interactions`, per-method `failure_evidence` and a rendered `get_test` (#217). The CLI wrapper now detects the architecture, pins with `KENSA_VERSION` and verifies downloads against the release's `checksums.txt` (#216). Report links naming both a test and an `issue:` filter keep the linked test selected (#215). Site-mode reports pick up the matching UI shell, including the link fix. No plugin configuration change; Kotlin floor stays 2.4.10 and Gradle 9.7.0.
+
 ### v0.9.13
 
 **Default kensa-core → 0.9.0.** The API freeze ahead of 1.0: the supported surface is now sealed by the compiler, with the policy and support matrix in kensa-core's `COMPATIBILITY.md`. 0.9.0 also adds `@Epic` (#194), the report overview page (#195) and replay links on issue badges, and fixes parallel invocations of the same test method losing data, value renderers being bypassed for parameterised arguments (#189), empty string parameters rendering as `null` (#185), dead issue links from an unconfigured tracker (#191), `kensa.disable.output` ignoring most values (#192) and fixtures/outputs not resolving inside polling blocks (#190). Site-mode reports pick up the matching UI shell, including the new overview page.
