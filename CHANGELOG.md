@@ -1,5 +1,9 @@
 <h2 class="github">Changelog</h2>
 
+### v0.9.15
+
+**Default kensa-core → 0.9.3.** 0.9.3 lets user thread locals travel into `thenEventually` / `thenContinually` checks: `withCoroutineContextProviders` registers `() -> CoroutineContext` providers, invoked on the test thread each time a polling block assembles its context, so a `ThreadLocal.asContextElement()` provider (a tracking-id holder, MDC) is visible on the polling threads (#220). Hover anchors on test and invocation headers copy deep links into the report (#219), and the MCP `captured_interactions` tool skips empty attribute groups instead of failing the call (#218). Site-mode reports pick up the matching UI shell, including the deep-link anchors. No plugin configuration change; Kotlin floor stays 2.4.10 and Gradle 9.7.0.
+
 ### v0.9.14
 
 **Default kensa-core → 0.9.2.** 0.9.2 writes a `run.json` marker into every output bundle — start, finish, and live counts of classes and passed/failed/disabled methods as classes complete — and adds the MCP run-state tools built on it: `run_status`, `await_results`, bundle freshness on every listing, `captured_interactions`, per-method `failure_evidence` and a rendered `get_test` (#217). The CLI wrapper now detects the architecture, pins with `KENSA_VERSION` and verifies downloads against the release's `checksums.txt` (#216). Report links naming both a test and an `issue:` filter keep the linked test selected (#215). Site-mode reports pick up the matching UI shell, including the link fix. No plugin configuration change; Kotlin floor stays 2.4.10 and Gradle 9.7.0.
