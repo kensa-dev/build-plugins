@@ -1,5 +1,9 @@
 <h2 class="github">Changelog</h2>
 
+### v0.9.16
+
+**Default kensa-core → 0.9.4.** 0.9.4 adds the `suite_summary` MCP tool and compact MCP listings (#221), `#/issue/<key>` and `#/epic/<id>` report links (#222), `SetupStep.setup(scope)` with an imperative `SetupScope` (#210), a `SetupSteps(list)` constructor (#213) and one-line `setupStep { }` / `setupActions(…)` builders (#212). Report UI: polling blocks no longer repeat the wrapper keyword; deep links scroll the report's own content pane instead of the embedding page; `?theme=dark|light` on a report URL sets the initial theme. Site-mode reports pick up the matching UI shell. No plugin configuration change; Kotlin floor stays 2.4.10 and Gradle 9.7.0.
+
 ### v0.9.15
 
 **Default kensa-core → 0.9.3.** 0.9.3 lets user thread locals travel into `thenEventually` / `thenContinually` checks: `withCoroutineContextProviders` registers `() -> CoroutineContext` providers, invoked on the test thread each time a polling block assembles its context, so a `ThreadLocal.asContextElement()` provider (a tracking-id holder, MDC) is visible on the polling threads (#220). Hover anchors on test and invocation headers copy deep links into the report (#219), and the MCP `captured_interactions` tool skips empty attribute groups instead of failing the call (#218). Site-mode reports pick up the matching UI shell, including the deep-link anchors. No plugin configuration change; Kotlin floor stays 2.4.10 and Gradle 9.7.0.

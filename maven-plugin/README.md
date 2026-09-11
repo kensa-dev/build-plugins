@@ -27,6 +27,9 @@ The plugin and `dev.kensa:kensa-core` version independently (since plugin v0.9.0
 
 | Plugin     | Default kensa-core | Min kensa-core | Notes                                |
 | ---------- | ------------------ | -------------- | ------------------------------------ |
+| 0.9.16     | 0.9.4              | 0.8.0          | Default kensa-core bumped to 0.9.4 (`suite_summary` MCP tool and compact listings #221; `#/issue/<key>` and `#/epic/<id>` report links #222; `SetupStep.setup(scope)` #210, `SetupSteps(list)` #213, one-line setup-step builders #212; polling-block wording, in-pane deep-link scrolling, `?theme=` on report URLs); no Maven changes |
+| 0.9.15     | 0.9.3              | 0.8.0          | Default kensa-core bumped to 0.9.3 (`withCoroutineContextProviders` for polling checks #220; report deep-link anchors #219; MCP `captured_interactions` empty-group fix #218); no Maven changes |
+| 0.9.14     | 0.9.2              | 0.8.0          | Default kensa-core bumped to 0.9.2 (`run.json` run marker and MCP run-state tools #217; CLI wrapper arch detection, pinning and checksums #216; issue-filter deep-link fix #215); no Maven changes |
 | 0.9.13     | 0.9.0              | 0.8.0          | Default kensa-core bumped to 0.9.0 (the API freeze ahead of 1.0: implementation packages `internal`, `COMPATIBILITY.md`; `@Epic` and the report overview page #194/#195; replay links on issue badges; fixes #185, #189–#193); no Maven changes |
 | 0.9.12     | 0.8.16             | 0.8.0          | Built with Kotlin 2.4.10 — minimum consumer Kotlin is now 2.4.10; default kensa-core 0.8.16 (container chains, `by fixtures(fx)` delegate, qualified enum constants #180, diagram glyphs #179); no Maven changes |
 | 0.9.11     | 0.8.15             | 0.8.0          | Default kensa-core bumped to 0.8.15 (`kensa mcp` CLI server; negative matcher assertions; #174/#176/#177); no Maven changes |
