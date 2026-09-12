@@ -2,6 +2,7 @@ import org.gradle.api.JavaVersion.VERSION_17
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jreleaser.model.Active
+import org.jreleaser.model.api.deploy.maven.MavenCentralMavenDeployer.Stage
 
 plugins {
     alias(libs.plugins.kotlinJvm) apply false
@@ -87,8 +88,22 @@ subprojects {
 
 jreleaser {
     gitRootSearch.set(true)
+    signing {
+        active.set(Active.RELEASE)
+        armored.set(true)
+    }
     deploy {
         maven {
+            // Releases: the Maven plugin goes to Maven Central. The Gradle plugin is published
+            // to the Gradle Plugin Portal separately (make publish-gradle-plugin), so the release
+            // target only stages :maven-plugin before deploying.
+            mavenCentral.create("sonatype") {
+                active.set(Active.RELEASE)
+                url.set("https://central.sonatype.com/api/v1/publisher")
+                applyMavenCentralRules.set(true)
+                stage.set(Stage.UPLOAD)
+                stagingRepositories.add(layout.buildDirectory.dir("staging-deploy").get().asFile.absolutePath)
+            }
             nexus2.create("snapshots") {
                 active.set(Active.SNAPSHOT)
                 snapshotUrl.set("https://central.sonatype.com/repository/maven-snapshots/")

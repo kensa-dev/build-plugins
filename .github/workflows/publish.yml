@@ -3,15 +3,28 @@ on:
   push:
     tags:
       - '*'
+  # Manual run publishes the Maven plugin only, under the given release version, from the
+  # branch the workflow is run on. For backfilling a tag whose push predates this job; the
+  # branch's plugin sources must match that tag.
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Release version to publish the Maven plugin as (e.g. 0.9.16)'
+        required: true
 
 env:
   GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
   GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
+  JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.SIGNING_PUBLIC_KEY }}
+  JRELEASER_GPG_SECRET_KEY: ${{ secrets.SIGNING_KEY }}
+  JRELEASER_GPG_PASSPHRASE: ${{ secrets.SIGNING_PASSWORD }}
+  JRELEASER_MAVENCENTRAL_SONATYPE_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+  JRELEASER_MAVENCENTRAL_SONATYPE_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
 jobs:
   PublishGradlePlugin:
     runs-on: ubuntu-latest
-    if: ${{ !endsWith(github.ref_name, '-SNAPSHOT') }}
+    if: ${{ github.event_name == 'push' && !endsWith(github.ref_name, '-SNAPSHOT') }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,10 +40,28 @@ jobs:
           GIT_TAG_NAME: ${{ github.ref_name }}
         run: make publish-gradle-plugin
 
+  PublishMavenPlugin:
+    runs-on: ubuntu-latest
+    if: ${{ !endsWith(inputs.ref || github.ref_name, '-SNAPSHOT') }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+      - name: Publish Maven plugin to Maven Central
+        env:
+          GIT_TAG_NAME: ${{ inputs.ref || github.ref_name }}
+        run: make publish-maven-plugin
+
   DispatchReleaseEvent:
     runs-on: ubuntu-latest
-    needs: [PublishGradlePlugin]
-    if: ${{ always() && needs.PublishGradlePlugin.result == 'success' }}
+    needs: [PublishGradlePlugin, PublishMavenPlugin]
+    if: ${{ always() && github.event_name == 'push' && needs.PublishGradlePlugin.result == 'success' && needs.PublishMavenPlugin.result == 'success' }}
     steps:
       - uses: actions/checkout@v4
         with:

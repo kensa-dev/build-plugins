@@ -60,6 +60,12 @@ validate-gradle-plugin:
 		-Pgradle.publish.key="$${GRADLE_PUBLISH_KEY}" \
 		-Pgradle.publish.secret="$${GRADLE_PUBLISH_SECRET}"
 
+.PHONY: publish-maven-plugin
+publish-maven-plugin:
+	rm -rf build/staging-deploy
+	./gradlew --build-cache --no-daemon :maven-plugin:publish -PreleaseVersion="$${GIT_TAG_NAME}"
+	./gradlew --build-cache --no-daemon jreleaserDeploy -PreleaseVersion="$${GIT_TAG_NAME}"
+
 .PHONY: publish-to-sonatype-snapshot
 publish-to-sonatype-snapshot:
 	./gradlew --build-cache --no-daemon publish -PreleaseVersion="$${RELEASE_VERSION}"
