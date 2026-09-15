@@ -1,5 +1,9 @@
 <h2 class="github">Changelog</h2>
 
+### v0.9.17
+
+**Default kensa-core → 0.9.5.** 0.9.5 adds report embed mode, `#/embed/<testId>` with `theme=auto` and the `kensa-embed.js` iframe sizer (#224); link unfurl pages, a static Open Graph page per class and method under `embed/` when a `linkBaseUrl` is set; `withLinkBaseUrl` / `KENSA_LINK_BASE_URL` so copied links use the report's published address (#224); the sticky test name in the report header (#223); and filter by issue or epic from the badge right-click menu (#225). Site-mode reports pick up the matching UI shell. No plugin configuration change; Kotlin floor stays 2.4.10 and Gradle 9.7.0.
+
 ### v0.9.16
 
 **Default kensa-core → 0.9.4.** 0.9.4 adds the `suite_summary` MCP tool and compact MCP listings (#221), `#/issue/<key>` and `#/epic/<id>` report links (#222), `SetupStep.setup(scope)` with an imperative `SetupScope` (#210), a `SetupSteps(list)` constructor (#213) and one-line `setupStep { }` / `setupActions(…)` builders (#212). Report UI: polling blocks no longer repeat the wrapper keyword; deep links scroll the report's own content pane instead of the embedding page; `?theme=dark|light` on a report URL sets the initial theme. Site-mode reports pick up the matching UI shell. No plugin configuration change; Kotlin floor stays 2.4.10 and Gradle 9.7.0.
