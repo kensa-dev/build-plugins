@@ -27,6 +27,7 @@ The plugin and `dev.kensa:kensa-core` version independently (since plugin v0.9.0
 
 | Plugin     | Default kensa-core | Min kensa-core | Notes                                |
 | ---------- | ------------------ | -------------- | ------------------------------------ |
+| 0.9.18     | 0.9.5              | 0.8.0          | Site shell now copies `kensa-embed.js` and `favicon.png` from the core jar (#8); cores older than 0.9.5 still assemble |
 | 0.9.17     | 0.9.5              | 0.8.0          | Default kensa-core bumped to 0.9.5 (report embed mode and `kensa-embed.js` #224; link unfurl pages; `withLinkBaseUrl` / `KENSA_LINK_BASE_URL` #224; sticky test name #223; badge filter #225); no Maven changes |
 | 0.9.16     | 0.9.4              | 0.8.0          | Default kensa-core bumped to 0.9.4 (`suite_summary` MCP tool and compact listings #221; `#/issue/<key>` and `#/epic/<id>` report links #222; `SetupStep.setup(scope)` #210, `SetupSteps(list)` #213, one-line setup-step builders #212; polling-block wording, in-pane deep-link scrolling, `?theme=` on report URLs); no Maven changes |
 | 0.9.15     | 0.9.3              | 0.8.0          | Default kensa-core bumped to 0.9.3 (`withCoroutineContextProviders` for polling checks #220; report deep-link anchors #219; MCP `captured_interactions` empty-group fix #218); no Maven changes |

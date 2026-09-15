@@ -1,5 +1,9 @@
 <h2 class="github">Changelog</h2>
 
+### v0.9.18
+
+**Site-mode shell gains `kensa-embed.js` and `favicon.png`.** kensa-core 0.9.5 writes both beside `kensa.js` in every bundle; site assembly copied only `kensa.js` and `logo.svg`, so an aggregated site served neither at its root (#8). Both are now extracted from the resolved core jar and tracked as task outputs. A core older than 0.9.5 still assembles without them. Default kensa-core stays 0.9.5.
+
 ### v0.9.17
 
 **Default kensa-core → 0.9.5.** 0.9.5 adds report embed mode, `#/embed/<testId>` with `theme=auto` and the `kensa-embed.js` iframe sizer (#224); link unfurl pages, a static Open Graph page per class and method under `embed/` when a `linkBaseUrl` is set; `withLinkBaseUrl` / `KENSA_LINK_BASE_URL` so copied links use the report's published address (#224); the sticky test name in the report header (#223); and filter by issue or epic from the badge right-click menu (#225). Site-mode reports pick up the matching UI shell. No plugin configuration change; Kotlin floor stays 2.4.10 and Gradle 9.7.0.
