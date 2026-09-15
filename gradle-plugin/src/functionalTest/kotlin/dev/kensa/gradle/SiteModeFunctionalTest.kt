@@ -31,6 +31,8 @@ class SiteModeFunctionalTest {
         Files.exists(siteRoot.resolve("index.html")) shouldBe true
         Files.exists(siteRoot.resolve("kensa.js")) shouldBe true
         Files.exists(siteRoot.resolve("logo.svg")) shouldBe true
+        Files.exists(siteRoot.resolve("kensa-embed.js")) shouldBe true
+        Files.exists(siteRoot.resolve("favicon.png")) shouldBe true
 
         val manifestText = siteRoot.resolve("manifest.json").toFile().readText()
         manifestText shouldContain "\"id\": \"uiTest\""
@@ -126,6 +128,35 @@ class SiteModeFunctionalTest {
         val second = runner(projectDir).build()
 
         second.task(":assembleKensaSite")?.outcome shouldBe TaskOutcome.UP_TO_DATE
+    }
+
+    @Test
+    fun `task re-runs when the embed script is deleted from the site root`(@TempDir projectDir: Path) {
+        writeFixtureProject(projectDir)
+        prePopulateSource(projectDir, "test", titleText = "Acceptance Tests")
+        runner(projectDir).build()
+        val embedJs = projectDir.resolve("build/kensa-site/kensa-embed.js")
+        Files.delete(embedJs)
+
+        val second = runner(projectDir).build()
+
+        second.task(":assembleKensaSite")?.outcome shouldBe TaskOutcome.SUCCESS
+        Files.exists(embedJs) shouldBe true
+    }
+
+    @Test
+    fun `a kensa-core older than 0_9_5 without the embed script or favicon still assembles`(@TempDir projectDir: Path) {
+        val repo = defaultRepo(projectDir)
+        publishFakeKensaCore(repo, version = "0.9.4", legacyShell = true)
+        writeFixtureProject(projectDir, repo = repo, kensaCoreVersionOverride = "0.9.4")
+        prePopulateSource(projectDir, "test", titleText = "Acceptance Tests")
+
+        val result = runner(projectDir).build()
+
+        result.task(":assembleKensaSite")?.outcome shouldBe TaskOutcome.SUCCESS
+        val siteRoot = projectDir.resolve("build/kensa-site")
+        Files.exists(siteRoot.resolve("kensa.js")) shouldBe true
+        Files.exists(siteRoot.resolve("kensa-embed.js")) shouldBe false
     }
 
     @Test
@@ -330,7 +361,7 @@ class SiteModeFunctionalTest {
 
     /**
      * Publishes a synthetic `dev.kensa:kensa-core:[version]` artifact into [repoRoot]
-     * (Maven layout). The jar contains only `kensa.js` and `logo.svg` — sufficient for the
+     * (Maven layout). The jar mirrors a 0.9.5 core shell (`kensa.js`, `logo.svg`, `kensa-embed.js`, `favicon.png`) — sufficient for the
      * site-assembly task. Calling this twice with different bytes simulates a kensa UI
      * update being republished to maven local.
      */
@@ -341,5 +372,6 @@ class SiteModeFunctionalTest {
         logoSvgBytes: ByteArray = "<svg/>".toByteArray(),
         version: String = kensaCoreVersion,
         withVariants: Boolean = false,
-    ) = publishFakeKensaCore(repoRoot, version, kensaJsBytes, logoSvgBytes, withVariants)
+        legacyShell: Boolean = false,
+    ) = publishFakeKensaCore(repoRoot, version, kensaJsBytes, logoSvgBytes, withVariants, legacyShell)
 }

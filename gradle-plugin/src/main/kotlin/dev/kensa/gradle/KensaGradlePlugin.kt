@@ -180,6 +180,8 @@ class KensaGradlePlugin : KotlinCompilerPluginSupportPlugin {
             task.indexHtmlFile.set(extension.siteRoot.file("index.html"))
             task.kensaJsFile.set(extension.siteRoot.file("kensa.js"))
             task.logoSvgFile.set(extension.siteRoot.file("logo.svg"))
+            task.kensaEmbedJsFile.set(extension.siteRoot.file("kensa-embed.js"))
+            task.faviconPngFile.set(extension.siteRoot.file("favicon.png"))
             task.mustRunAfter(configuredTestTasks)
         }
 
@@ -290,6 +292,8 @@ class KensaGradlePlugin : KotlinCompilerPluginSupportPlugin {
             task.indexHtmlFile.set(extension.siteRoot.file("index.html"))
             task.kensaJsFile.set(extension.siteRoot.file("kensa.js"))
             task.logoSvgFile.set(extension.siteRoot.file("logo.svg"))
+            task.kensaEmbedJsFile.set(extension.siteRoot.file("kensa-embed.js"))
+            task.faviconPngFile.set(extension.siteRoot.file("favicon.png"))
             task.mustRunAfter(configuredOwnTestTasks)
             // Service contents are part of the task's input universe via configured state.
             task.usesService(siteService)

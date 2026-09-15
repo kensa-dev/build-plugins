@@ -40,6 +40,8 @@ class InvokerIntegrationTest {
         Files.exists(tempDir.resolve("target/kensa-site/index.html")) shouldBe true
         Files.exists(tempDir.resolve("target/kensa-site/kensa.js")) shouldBe true
         Files.exists(tempDir.resolve("target/kensa-site/logo.svg")) shouldBe true
+        Files.exists(tempDir.resolve("target/kensa-site/kensa-embed.js")) shouldBe true
+        Files.exists(tempDir.resolve("target/kensa-site/favicon.png")) shouldBe true
 
         val manifest = tempDir.resolve("target/kensa-site/manifest.json").toFile().readText()
         manifest shouldContain "\"id\": \"test\""
@@ -169,7 +171,7 @@ class InvokerIntegrationTest {
 
     /**
      * Publishes a synthetic `dev.kensa:kensa-core` artifact at [version] into [repoRoot] (Maven layout).
-     * The jar contains only `kensa.js` and `logo.svg` — sufficient for the site-assembly mojo. Calling
+     * The jar mirrors a 0.9.5 core shell (`kensa.js`, `logo.svg`, `kensa-embed.js`, `favicon.png`) — sufficient for the site-assembly mojo. Calling
      * with a different [version] simulates a kensa UI republish without a plugin republish.
      */
     private fun publishFakeKensaCore(
@@ -188,6 +190,12 @@ class InvokerIntegrationTest {
             jos.closeEntry()
             jos.putNextEntry(JarEntry("logo.svg"))
             jos.write(logoSvgBytes)
+            jos.closeEntry()
+            jos.putNextEntry(JarEntry("kensa-embed.js"))
+            jos.write("// embed\n".toByteArray())
+            jos.closeEntry()
+            jos.putNextEntry(JarEntry("favicon.png"))
+            jos.write(byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47))
             jos.closeEntry()
         }
 

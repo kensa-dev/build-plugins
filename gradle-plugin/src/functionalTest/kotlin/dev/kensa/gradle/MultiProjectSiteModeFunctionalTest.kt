@@ -390,6 +390,7 @@ internal fun publishFakeKensaCore(
     kensaJsBytes: ByteArray = "// shell\n".toByteArray(),
     logoSvgBytes: ByteArray = "<svg/>".toByteArray(),
     withVariants: Boolean = false,
+    legacyShell: Boolean = false,
 ) {
     val artifactDir = repoRoot.resolve("dev/kensa/kensa-core/$version")
     Files.createDirectories(artifactDir)
@@ -402,6 +403,14 @@ internal fun publishFakeKensaCore(
             jos.putNextEntry(JarEntry("logo.svg"))
             jos.write(logoSvgBytes)
             jos.closeEntry()
+            if (!legacyShell) {
+                jos.putNextEntry(JarEntry("kensa-embed.js"))
+                jos.write("// embed\n".toByteArray())
+                jos.closeEntry()
+                jos.putNextEntry(JarEntry("favicon.png"))
+                jos.write(byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47))
+                jos.closeEntry()
+            }
         }
     }.toByteArray()
     val jarName = "kensa-core-$version.jar"

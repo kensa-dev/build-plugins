@@ -58,7 +58,7 @@ abstract class AssembleKensaSiteTask : DefaultTask() {
     abstract val sourceConfigurations: ConfigurableFileCollection
 
     /**
-     * Resolved kensa-core jar(s) — `kensa.js` and `logo.svg` are extracted from these at execution time.
+     * Resolved kensa-core jar(s) — the shell files (`kensa.js`, `logo.svg`, `kensa-embed.js`, `favicon.png`) are extracted from these at execution time.
      * @Classpath fingerprints jar contents, so when a new kensa-core SNAPSHOT lands in `~/.m2` the cache
      * key changes and the task re-runs. No plugin republish required.
      */
@@ -76,6 +76,12 @@ abstract class AssembleKensaSiteTask : DefaultTask() {
 
     @get:OutputFile
     abstract val logoSvgFile: RegularFileProperty
+
+    @get:OutputFile
+    abstract val kensaEmbedJsFile: RegularFileProperty
+
+    @get:OutputFile
+    abstract val faviconPngFile: RegularFileProperty
 
     @TaskAction
     fun assemble() {
