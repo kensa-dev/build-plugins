@@ -276,7 +276,7 @@ class MultiProjectSiteModeFunctionalTest {
         rootSite: Boolean = true,
         rootSourceTitles: Map<String, String> = emptyMap(),
         rootSourceSets: List<String> = emptyList(),
-        kotlinVersion: String = "2.4.10",
+        kotlinVersion: String = "2.4.20",
     ) {
         val include = subprojects.joinToString(", ") { "\"${it.path}\"" }
         projectDir.resolve("settings.gradle.kts").toFile().writeText(
