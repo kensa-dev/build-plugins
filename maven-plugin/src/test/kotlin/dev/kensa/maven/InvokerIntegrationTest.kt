@@ -27,7 +27,7 @@ class InvokerIntegrationTest {
     @Test
     fun `single-execution fixture builds and produces a single-source manifest`(@TempDir tempDir: Path) {
         val testRepo = tempDir.resolve("test-repo")
-        val kensaCoreVersion = "0.8.0-test-${UUID.randomUUID()}"
+        val kensaCoreVersion = "0.9.6-test-${UUID.randomUUID()}"
         publishFakeKensaCore(testRepo, kensaCoreVersion, kensaJsBytes = "// shell\n".toByteArray())
 
         copyFixture("single-execution", tempDir)
@@ -53,7 +53,7 @@ class InvokerIntegrationTest {
     @Test
     fun `two-executions fixture aggregates both source bundles`(@TempDir tempDir: Path) {
         val testRepo = tempDir.resolve("test-repo")
-        val kensaCoreVersion = "0.8.0-test-${UUID.randomUUID()}"
+        val kensaCoreVersion = "0.9.6-test-${UUID.randomUUID()}"
         publishFakeKensaCore(testRepo, kensaCoreVersion)
 
         copyFixture("two-executions", tempDir)
@@ -71,7 +71,7 @@ class InvokerIntegrationTest {
     @Test
     fun `partial run — one source missing — completes with warning and partial manifest`(@TempDir tempDir: Path) {
         val testRepo = tempDir.resolve("test-repo")
-        val kensaCoreVersion = "0.8.0-test-${UUID.randomUUID()}"
+        val kensaCoreVersion = "0.9.6-test-${UUID.randomUUID()}"
         publishFakeKensaCore(testRepo, kensaCoreVersion)
 
         copyFixture("two-executions", tempDir)
@@ -89,7 +89,7 @@ class InvokerIntegrationTest {
     @Test
     fun `sourceTitles mojo parameter overrides per-source titleText in manifest and configuration json`(@TempDir tempDir: Path) {
         val testRepo = tempDir.resolve("test-repo")
-        val kensaCoreVersion = "0.8.0-test-${UUID.randomUUID()}"
+        val kensaCoreVersion = "0.9.6-test-${UUID.randomUUID()}"
         publishFakeKensaCore(testRepo, kensaCoreVersion)
 
         copyFixture("with-source-titles", tempDir)
@@ -110,8 +110,8 @@ class InvokerIntegrationTest {
     @Test
     fun `re-running with a new kensa-core jar picks up the new shell content without a plugin republish`(@TempDir tempDir: Path) {
         val testRepo = tempDir.resolve("test-repo")
-        val firstVersion = "0.8.0-test-${UUID.randomUUID()}"
-        val secondVersion = "0.8.0-test-${UUID.randomUUID()}"
+        val firstVersion = "0.9.6-test-${UUID.randomUUID()}"
+        val secondVersion = "0.9.6-test-${UUID.randomUUID()}"
         publishFakeKensaCore(testRepo, firstVersion, kensaJsBytes = "// shell v1\n".toByteArray())
         publishFakeKensaCore(testRepo, secondVersion, kensaJsBytes = "// shell v2\n".toByteArray())
 

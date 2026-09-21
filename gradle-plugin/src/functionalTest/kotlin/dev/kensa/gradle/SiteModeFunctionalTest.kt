@@ -145,18 +145,15 @@ class SiteModeFunctionalTest {
     }
 
     @Test
-    fun `a kensa-core older than 0_9_5 without the embed script or favicon still assembles`(@TempDir projectDir: Path) {
+    fun `a kensaCoreVersion override below the minimum is rejected`(@TempDir projectDir: Path) {
         val repo = defaultRepo(projectDir)
-        publishFakeKensaCore(repo, version = "0.9.4", legacyShell = true)
-        writeFixtureProject(projectDir, repo = repo, kensaCoreVersionOverride = "0.9.4")
-        prePopulateSource(projectDir, "test", titleText = "Acceptance Tests")
+        publishFakeKensaCore(repo, version = "0.9.5")
+        writeFixtureProject(projectDir, repo = repo, kensaCoreVersionOverride = "0.9.5")
 
-        val result = runner(projectDir).build()
+        val result = runner(projectDir).buildAndFail()
 
-        result.task(":assembleKensaSite")?.outcome shouldBe TaskOutcome.SUCCESS
-        val siteRoot = projectDir.resolve("build/kensa-site")
-        Files.exists(siteRoot.resolve("kensa.js")) shouldBe true
-        Files.exists(siteRoot.resolve("kensa-embed.js")) shouldBe false
+        result.output shouldContain "requires kensa-core >= 0.9.6"
+        result.output shouldContain "requested kensa-core 0.9.5"
     }
 
     @Test
@@ -177,8 +174,8 @@ class SiteModeFunctionalTest {
 
     @Test
     fun `kensa kensaCoreVersion override resolves a different kensa-core than the plugin default`(@TempDir projectDir: Path) {
-        // Distinct from the default; deliberately above the min compat bound (0.8.0).
-        val overrideVersion = "0.8.99"
+        // Distinct from the default; deliberately above the min compat bound (0.9.6).
+        val overrideVersion = "0.9.99"
         val repo = projectDir.resolve("test-repo")
         // Publish ONLY the override version. The default isn't in the repo, so a build that
         // ignored the override would fail to resolve. Distinct bytes prove which version
@@ -372,6 +369,5 @@ class SiteModeFunctionalTest {
         logoSvgBytes: ByteArray = "<svg/>".toByteArray(),
         version: String = kensaCoreVersion,
         withVariants: Boolean = false,
-        legacyShell: Boolean = false,
-    ) = publishFakeKensaCore(repoRoot, version, kensaJsBytes, logoSvgBytes, withVariants, legacyShell)
+    ) = publishFakeKensaCore(repoRoot, version, kensaJsBytes, logoSvgBytes, withVariants)
 }

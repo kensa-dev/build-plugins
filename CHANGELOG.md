@@ -2,7 +2,7 @@
 
 ### v0.9.19
 
-**Built with Kotlin 2.4.20; default kensa-core → 0.9.6.** The apply-time minimum consumer Kotlin is now 2.4.20, matching the compiler plugin in kensa-core 0.9.6. Stay on 0.9.18 until your project reaches Kotlin 2.4.20. A kensa-core older than 0.9.6 ships a compiler plugin built for 2.4.10, so do not pin one with this plugin. 0.9.6 adds a log source manifest in `run.json` and three MCP log tools (#228), shows file-less log tabs, uses the amber accent, makes dark mode follow the OS until chosen, and fixes a chained call after an argument-less expandable rendering as its parameter (#242). Site-mode reports pick up the matching UI shell.
+**Built with Kotlin 2.4.20; default kensa-core → 0.9.6.** The apply-time minimum consumer Kotlin is now 2.4.20, matching the compiler plugin in kensa-core 0.9.6. Stay on 0.9.18 until your project reaches Kotlin 2.4.20. The minimum kensa-core is now 0.9.6, since older cores ship a compiler plugin built for 2.4.10; a `kensaCoreVersion` override below it fails at apply time, and site assembly now requires `kensa-embed.js` and `favicon.png` in the core jar. 0.9.6 adds a log source manifest in `run.json` and three MCP log tools (#228), shows file-less log tabs, uses the amber accent, makes dark mode follow the OS until chosen, and fixes a chained call after an argument-less expandable rendering as its parameter (#242). Site-mode reports pick up the matching UI shell.
 
 ### v0.9.18
 

@@ -126,12 +126,12 @@ class MultiProjectSiteModeFunctionalTest {
     fun `contributor with different kensaCoreVersion fails aggregator task with actionable message`(@TempDir projectDir: Path) {
         val repo = projectDir.resolve("test-repo")
         publishFakeKensaCore(repo, version = kensaCoreVersion)
-        publishFakeKensaCore(repo, version = "0.8.99")
+        publishFakeKensaCore(repo, version = "0.9.99")
         writeMultiProjectFixture(
             projectDir,
             repo,
             subprojects = listOf(
-                Sub(":legacy", sourceSets = listOf("test"), kensaCoreVersionOverride = "0.8.99"),
+                Sub(":legacy", sourceSets = listOf("test"), kensaCoreVersionOverride = "0.9.99"),
             ),
         )
         prePopulate(projectDir, "legacy__test", titleText = "Legacy")
@@ -140,7 +140,7 @@ class MultiProjectSiteModeFunctionalTest {
 
         result.output shouldContain "kensa-core version mismatch"
         result.output shouldContain ":legacy"
-        result.output shouldContain "0.8.99"
+        result.output shouldContain "0.9.99"
     }
 
     @Test
@@ -390,7 +390,6 @@ internal fun publishFakeKensaCore(
     kensaJsBytes: ByteArray = "// shell\n".toByteArray(),
     logoSvgBytes: ByteArray = "<svg/>".toByteArray(),
     withVariants: Boolean = false,
-    legacyShell: Boolean = false,
 ) {
     val artifactDir = repoRoot.resolve("dev/kensa/kensa-core/$version")
     Files.createDirectories(artifactDir)
@@ -403,14 +402,12 @@ internal fun publishFakeKensaCore(
             jos.putNextEntry(JarEntry("logo.svg"))
             jos.write(logoSvgBytes)
             jos.closeEntry()
-            if (!legacyShell) {
-                jos.putNextEntry(JarEntry("kensa-embed.js"))
-                jos.write("// embed\n".toByteArray())
-                jos.closeEntry()
-                jos.putNextEntry(JarEntry("favicon.png"))
-                jos.write(byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47))
-                jos.closeEntry()
-            }
+            jos.putNextEntry(JarEntry("kensa-embed.js"))
+            jos.write("// embed\n".toByteArray())
+            jos.closeEntry()
+            jos.putNextEntry(JarEntry("favicon.png"))
+            jos.write(byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47))
+            jos.closeEntry()
         }
     }.toByteArray()
     val jarName = "kensa-core-$version.jar"

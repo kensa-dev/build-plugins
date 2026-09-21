@@ -8,14 +8,10 @@ object ShellResources {
     /** Resources copied verbatim from one of the supplied jars. */
     val CLASSPATH_NAMES = listOf("kensa.js", "logo.svg", "kensa-embed.js", "favicon.png")
 
-    /** Shipped by kensa-core from 0.9.5; an older core assembles without them. */
-    private val OPTIONAL_NAMES = setOf("kensa-embed.js", "favicon.png")
-
     /**
      * Writes the Kensa site shell into [siteRoot]:
      *   - `index.html` — generated inline (template; mirrors core's ResultWriter.writeHtml)
-     *   - `kensa.js`, `logo.svg` — extracted from the first [sourceJars] entry that contains them.
-     *   - `kensa-embed.js`, `favicon.png` — likewise, when the core ships them (0.9.5 and later).
+     *   - `kensa.js`, `logo.svg`, `kensa-embed.js`, `favicon.png` — extracted from the first [sourceJars] entry that contains them.
      *
      * [sourceJars] is typically a single resolved kensa-core jar. Resolving at task/mojo execution
      * time (rather than bundling at plugin-build time) means the latest published kensa-core's UI
@@ -42,10 +38,9 @@ object ShellResources {
             }
         }
 
-        val missing = needed - OPTIONAL_NAMES
-        if (missing.isNotEmpty()) {
+        if (needed.isNotEmpty()) {
             error(
-                "Kensa shell resources not found in any provided jar: $missing. " +
+                "Kensa shell resources not found in any provided jar: $needed. " +
                     "Searched: ${sourceJars.joinToString { it.fileName.toString() }}"
             )
         }
