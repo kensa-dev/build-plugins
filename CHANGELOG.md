@@ -1,5 +1,9 @@
 <h2 class="github">Changelog</h2>
 
+### v0.9.19
+
+**Built with Kotlin 2.4.20; default kensa-core → 0.9.6.** The apply-time minimum consumer Kotlin is now 2.4.20, matching the compiler plugin in kensa-core 0.9.6. Stay on 0.9.18 until your project reaches Kotlin 2.4.20. A kensa-core older than 0.9.6 ships a compiler plugin built for 2.4.10, so do not pin one with this plugin. 0.9.6 adds a log source manifest in `run.json` and three MCP log tools (#228), shows file-less log tabs, uses the amber accent, makes dark mode follow the OS until chosen, and fixes a chained call after an argument-less expandable rendering as its parameter (#242). Site-mode reports pick up the matching UI shell.
+
 ### v0.9.18
 
 **Site-mode shell gains `kensa-embed.js` and `favicon.png`.** kensa-core 0.9.5 writes both beside `kensa.js` in every bundle; site assembly copied only `kensa.js` and `logo.svg`, so an aggregated site served neither at its root (#8). Both are now extracted from the resolved core jar and tracked as task outputs. A core older than 0.9.5 still assembles without them. Default kensa-core stays 0.9.5.
