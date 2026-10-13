@@ -1,5 +1,9 @@
 <h2 class="github">Changelog</h2>
 
+### v1.0.0
+
+**Built with Kotlin 2.4.21; default kensa-core → 1.0.0.** The apply-time minimum consumer Kotlin is now 2.4.21, matching the compiler plugin in kensa-core 1.0.0. Stay on 0.9.19 until your project reaches Kotlin 2.4.21. The minimum kensa-core is now 1.0.0, since older cores ship a compiler plugin built for 2.4.20, so a `kensaCoreVersion` override below it fails at apply time. kensa-core 1.0.0 lets Java lambdas throw checked exceptions through `Action.of`, `StateCollector.of` and `SetupStep.of` (#253), adds `CapturedOutputs.highlight`, adds `partial: true` to the MCP `list_failures` tool, and keeps `Named` parameter labels when another argument contains a comma (#250). The report UI is unchanged from 0.9.6. Gradle 9.8.1.
+
 ### v0.9.19
 
 **Built with Kotlin 2.4.20; default kensa-core → 0.9.6.** The apply-time minimum consumer Kotlin is now 2.4.20, matching the compiler plugin in kensa-core 0.9.6. Stay on 0.9.18 until your project reaches Kotlin 2.4.20. The minimum kensa-core is now 0.9.6, since older cores ship a compiler plugin built for 2.4.10; a `kensaCoreVersion` override below it fails at apply time, and site assembly now requires `kensa-embed.js` and `favicon.png` in the core jar. 0.9.6 adds a log source manifest in `run.json` and three MCP log tools (#228), shows file-less log tabs, uses the amber accent, makes dark mode follow the OS until chosen, and fixes a chained call after an argument-less expandable rendering as its parameter (#242). Site-mode reports pick up the matching UI shell.
