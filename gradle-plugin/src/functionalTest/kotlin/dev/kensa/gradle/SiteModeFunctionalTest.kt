@@ -147,13 +147,13 @@ class SiteModeFunctionalTest {
     @Test
     fun `a kensaCoreVersion override below the minimum is rejected`(@TempDir projectDir: Path) {
         val repo = defaultRepo(projectDir)
-        publishFakeKensaCore(repo, version = "0.9.5")
-        writeFixtureProject(projectDir, repo = repo, kensaCoreVersionOverride = "0.9.5")
+        publishFakeKensaCore(repo, version = "0.9.6")
+        writeFixtureProject(projectDir, repo = repo, kensaCoreVersionOverride = "0.9.6")
 
         val result = runner(projectDir).buildAndFail()
 
-        result.output shouldContain "requires kensa-core >= 0.9.6"
-        result.output shouldContain "requested kensa-core 0.9.5"
+        result.output shouldContain "requires kensa-core >= 1.0.0"
+        result.output shouldContain "requested kensa-core 0.9.6"
     }
 
     @Test
@@ -175,7 +175,7 @@ class SiteModeFunctionalTest {
     @Test
     fun `kensa kensaCoreVersion override resolves a different kensa-core than the plugin default`(@TempDir projectDir: Path) {
         // Distinct from the default; deliberately above the min compat bound (0.9.6).
-        val overrideVersion = "0.9.99"
+        val overrideVersion = "1.0.99"
         val repo = projectDir.resolve("test-repo")
         // Publish ONLY the override version. The default isn't in the repo, so a build that
         // ignored the override would fail to resolve. Distinct bytes prove which version

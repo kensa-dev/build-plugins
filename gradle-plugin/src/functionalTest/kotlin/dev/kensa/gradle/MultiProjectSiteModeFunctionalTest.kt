@@ -126,12 +126,12 @@ class MultiProjectSiteModeFunctionalTest {
     fun `contributor with different kensaCoreVersion fails aggregator task with actionable message`(@TempDir projectDir: Path) {
         val repo = projectDir.resolve("test-repo")
         publishFakeKensaCore(repo, version = kensaCoreVersion)
-        publishFakeKensaCore(repo, version = "0.9.99")
+        publishFakeKensaCore(repo, version = "1.0.99")
         writeMultiProjectFixture(
             projectDir,
             repo,
             subprojects = listOf(
-                Sub(":legacy", sourceSets = listOf("test"), kensaCoreVersionOverride = "0.9.99"),
+                Sub(":legacy", sourceSets = listOf("test"), kensaCoreVersionOverride = "1.0.99"),
             ),
         )
         prePopulate(projectDir, "legacy__test", titleText = "Legacy")
@@ -140,7 +140,7 @@ class MultiProjectSiteModeFunctionalTest {
 
         result.output shouldContain "kensa-core version mismatch"
         result.output shouldContain ":legacy"
-        result.output shouldContain "0.9.99"
+        result.output shouldContain "1.0.99"
     }
 
     @Test
