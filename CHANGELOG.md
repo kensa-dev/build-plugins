@@ -1,5 +1,9 @@
 <h2 class="github">Changelog</h2>
 
+### v1.0.1
+
+**Default kensa-core → 1.0.2.** Covers kensa-core 1.0.1 and 1.0.2. 1.0.1 restores sequence diagram styling and highlighting by returning PlantUML to 1.2026.6 (#254). 1.0.2 adds a `thenContinually` window measured from the action, `whenever(action.marking(moment))` with `thenContinually(5.seconds since moment)` (#243), and fixes sequence diagrams in dark mode (#255), a primary participant losing its shape (#234), unstable builder-captured interaction ids (#232), interaction order within one millisecond (#260), `@ExpandableRenderedValue` on a field or property (#230) and the keyword colour of a nested And or But (#268). Site-mode reports pick up the matching UI shell, including the diagram and keyword fixes. No plugin configuration change; Kotlin floor stays 2.4.21. Gradle 9.8.2.
+
 ### v1.0.0
 
 **Built with Kotlin 2.4.21; default kensa-core → 1.0.0.** The apply-time minimum consumer Kotlin is now 2.4.21, matching the compiler plugin in kensa-core 1.0.0. Stay on 0.9.19 until your project reaches Kotlin 2.4.21. The minimum kensa-core is now 1.0.0, since older cores ship a compiler plugin built for 2.4.20, so a `kensaCoreVersion` override below it fails at apply time. kensa-core 1.0.0 lets Java lambdas throw checked exceptions through `Action.of`, `StateCollector.of` and `SetupStep.of` (#253), adds `CapturedOutputs.highlight`, adds `partial: true` to the MCP `list_failures` tool, and keeps `Named` parameter labels when another argument contains a comma (#250). The report UI is unchanged from 0.9.6. Gradle 9.8.1.
