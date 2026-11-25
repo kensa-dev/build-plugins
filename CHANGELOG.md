@@ -1,5 +1,9 @@
 <h2 class="github">Changelog</h2>
 
+### v1.0.2
+
+**Default kensa-core → 1.0.3.** 1.0.3 renders a `$name` reference inside a string, single-line or triple-quoted, as `${name}` already did (#275); adds `having`, `including` and `containing` to `RefinedSugar`, with vararg forms of `has`, `have` and `with` (#283); stops the source parser growing the test JVM's heap over a long suite (#281); reads members an `@Sources` object inherits from a sealed or abstract parent from that object (#289); and makes the report's scrollbars follow the theme (#279). Site-mode reports pick up the matching UI shell, including the scrollbar fix. No plugin configuration change; Kotlin floor stays 2.4.21. Gradle 9.9.2.
+
 ### v1.0.1
 
 **Default kensa-core → 1.0.2.** Covers kensa-core 1.0.1 and 1.0.2. 1.0.1 restores sequence diagram styling and highlighting by returning PlantUML to 1.2026.6 (#254). 1.0.2 adds a `thenContinually` window measured from the action, `whenever(action.marking(moment))` with `thenContinually(5.seconds since moment)` (#243), and fixes sequence diagrams in dark mode (#255), a primary participant losing its shape (#234), unstable builder-captured interaction ids (#232), interaction order within one millisecond (#260), `@ExpandableRenderedValue` on a field or property (#230) and the keyword colour of a nested And or But (#268). Site-mode reports pick up the matching UI shell, including the diagram and keyword fixes. No plugin configuration change; Kotlin floor stays 2.4.21. Gradle 9.8.2.
